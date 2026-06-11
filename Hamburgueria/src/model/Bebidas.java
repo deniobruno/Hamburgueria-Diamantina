@@ -4,12 +4,20 @@
  */
 package model;
 
-/**
- * Subtipo de Produto que representa uma bebida do cardápio.
- * Criado via ProdutoFactory — padrão Factory Method.
+ /**
+ * Subtipo de {@link Produto} que representa uma bebida do cardápio.
+ * <p>
+ * Instâncias criadas exclusivamente por meio de{@link factorymethod.BebidaFactory}, seguindo o padrão de projeto.
+ * </p>
  */
 public class Bebidas extends Produto {
-
+/**
+* Cria uma nova bebida com os dados informados.
+*
+* @param idDescricao identificador do produto no cardápio
+* @param descricao nome ou descrição da bebida
+* @param valor preço unitário em reais
+*/
     public Bebidas(int idDescricao, String descricao, double valor) {
         super(idDescricao, descricao, valor);
     }

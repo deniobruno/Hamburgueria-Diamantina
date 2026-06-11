@@ -23,9 +23,20 @@ public class Produto {
     /** Estratégia A: private static + get/set */
     private static int totalProdutosPrivate = 0;
 
+ /**
+ * Retorna o total de produtos criados, Estratégia A (contador privado).
+ *
+ * @return número total de instâncias de {@code Produto} criadas
+ */    
     public static int getTotalProdutosPrivate(){ 
         return totalProdutosPrivate; 
     }
+  /**
+  * Define o valor do contador privado. Utilizado pela persistência
+  * para restaurar o estado ao carregar dados do JSON.
+  *
+  * @param valor novo valor do contador
+  */
     protected static void setTotalProdutosPrivate(int valor){
         totalProdutosPrivate = valor;
     }
@@ -37,7 +48,13 @@ public class Produto {
     private String descricao;
     private double valor;
     private List<Adicional> adicionaisDisponiveis;
-
+/**
+* Cria um novo produto, incrementando ambos os contadores estáticos.
+*
+* @param idDescricao identificador do produto no cardápio
+* @param descricao nome ou descrição do produto
+* @param valor preço unitário em reais
+*/
     public Produto(int idDescricao, String descricao, double valor) {
         this.idDescricao = idDescricao;
         this.descricao = descricao;
@@ -71,6 +88,11 @@ public class Produto {
     public void setAdicionaisDisponiveis(List<Adicional> adicionaisDisponiveis){
         this.adicionaisDisponiveis = adicionaisDisponiveis; 
     }
+/**
+* Acrescenta um adicional à lista de adicionais disponíveis para este produto.
+*
+* @param a adicional a ser incluído
+*/
     public void adicionarAdicional(Adicional a){ 
         this.adicionaisDisponiveis.add(a); 
     }

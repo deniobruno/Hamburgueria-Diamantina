@@ -6,10 +6,19 @@ package model;
 
 /**
  * Subtipo de Produto que representa um hambúrguer do cardápio.
- * Criado via ProdutoFactory,padrão Factory Method.
+ * Subtipo de {@link Produto} que representa um hambúrguer do cardápio.
+ * <p>
+ * Instâncias criadas exclusivamente por meio de {@link factorymethod.HamburguerFactory}, seguindo o padrão de projeto.
+ * </p>
  */
 public class Hamburguer extends Produto {
-
+/**
+* Cria um novo hambúrguer com os dados informados.
+*
+* @param idDescricao identificador do produto no cardápio
+* @param descricao nome ou descrição do hambúrguer
+* @param valor preço unitário em reais
+*/
     public Hamburguer(int idDescricao, String descricao, double valor) {
         super(idDescricao, descricao, valor);
         
