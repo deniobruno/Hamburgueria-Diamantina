@@ -1,7 +1,12 @@
 package model;
 
 /**
- * Representa o extrato/recibo gerado automaticamente para cada pedido.
+ * Representa o extrato (recibo) gerado automaticamente para cada pedido.
+ * <p>
+ * Contém os dados da empresa, do cliente, do produto e os valores envolvidos.
+ * Em caso de cancelamento, o extrato é atualizado com a taxa retida (35%) e
+ * o valor devolvido ao cliente (65%), podendo ser reimpresso com o novo status.
+ * </p>
  */
 public class Extrato {
 
@@ -19,6 +24,18 @@ public class Extrato {
     private String dataGeracao;
     private String horarioGeracao;
     private String descricaoProduto;
+    
+/**
+* Cria um novo extrato com ID gerado automaticamente.
+* 
+* @param idPedido identificador do pedido associado
+* @param idCliente identificador do cliente
+* @param nomeCliente nome do cliente para impressão no extrato
+* @param valorTotal valor total cobrado pelo pedido
+* @param dataGeracao data de geração no formato {@code Dia/Mes/Ano}
+* @param horarioGeracao  horário de geração no formato {@code HH:mm}
+* @param descricaoProduto descrição textual dos produtos do pedido
+*/
 
     public Extrato(int idPedido, int idCliente, String nomeCliente, double valorTotal,
                    String dataGeracao, String horarioGeracao, String descricaoProduto) {
@@ -33,6 +50,20 @@ public class Extrato {
         this.horarioGeracao = horarioGeracao;
         this.descricaoProduto = descricaoProduto;
     }
+/**
+* Reconstrói um extrato existente a partir de dados persistidos.
+*
+* @param id identificador único já existente
+* @param idPedido identificador do pedido
+* @param idCliente identificador do cliente
+* @param nomeCliente nome do cliente
+* @param valorTotal valor total do pedido
+* @param valorCancelamento taxa retida em caso de cancelamento
+* @param cancelado indica se o pedido foi cancelado
+* @param dataGeracao data de geração do extrato
+* @param horarioGeracao horário de geração do extrato
+* @param descricaoProduto descrição dos produtos
+*/
 
     public Extrato(int id, int idPedido, int idCliente, String nomeCliente,
                    double valorTotal, double valorCancelamento, boolean cancelado,
@@ -49,12 +80,20 @@ public class Extrato {
         this.descricaoProduto = descricaoProduto;
         if (id >= proximoId) proximoId = id + 1;
     }
-
+ /**
+ * Marca o extrato como cancelado, registrando a taxa retida.
+ *
+ * @param taxaRetida valor retido pela hamburgueria 
+ */
     public void marcarCancelado(double taxaRetida) {
         this.cancelado = true;
         this.valorCancelamento = taxaRetida;
     }
-
+ /**
+ * Imprime o extrato formatado no console, exibindo os dados da empresa,
+ * do cliente, do produto e os valores. Caso o pedido seja cancelado, exibe
+ * a taxa retida e o valor devolvido ao cliente.
+ */
     public void imprimir() {
         String linha = "================================================";
         System.out.println(linha);

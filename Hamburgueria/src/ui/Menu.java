@@ -10,17 +10,41 @@ import relatorios.RelatorioVendas;
 import sistema.Sistema;
 
 import java.util.*;
-
+/**
+ * Camada de interface com o usuário via console.
+ * <p>
+ * Responsável por toda a interação de entrada e saída via {@link Scanner}.
+ * Recebe a instância de {@link Sistema} no construtor e delega todas as
+ * operações de negócio a ela. Aplica o padrão de projeto <b>Factory Method</b>
+ * ao cadastrar produtos (selecionando a fábrica concreta conforme o tipo
+ * digitado) e utiliza {@link Comparator} sem o compareTo para exibir listagens
+ * ordenadas de clientes e pedidos.
+ * </p>
+ */
 public class Menu {
 
     private final Scanner sc;
     private final Sistema sistema;
-
+/**
+* Cria o menu de interface, associando ele a  instância do sistema fornecida.
+*
+* @param sistema instância única de {@link Sistema} (Singleton)
+*/
     public Menu(Sistema sistema) {
         this.sistema = sistema;
         this.sc = new Scanner(System.in);
     }
-
+/**
+* Exibe a tela de login e autentica o usuário.
+* <p>
+* Permite até 3 tentativas de login. Se o usuário digitar {@code "sair"}
+* ou {@code "0"} no campo de login, retorna {@code null} sinalizando o
+* encerramento do sistema. Após 3 tentativas falhas, o acesso é bloqueado.
+* </p>
+*
+* @return o {@link Usuario} autenticado (Administrador ou Colaborador),
+* ou {@code null} se o usuário optou por sair ou excedeu as tentativas
+ */
     public Usuario telaLogin() {
         System.out.println("\n================================================");
         System.out.println("       Hamburgueria Diamantina       ");
@@ -49,6 +73,15 @@ public class Menu {
         System.out.println("Acesso bloqueado por excesso de tentativas."); 
         return null;
     }
+/**
+* Exibe e gerencia o menu principal do administrador.
+* <p>
+* Oferece 10 opções, o loop é encerrado quando o administrador
+* seleciona a opção {@code 0} (Sair).
+* </p>
+*
+* @param admin administrador autenticado na sessão atual
+*/
     public void menuAdministrador(Administrador admin) {
         boolean ok = true;
         while (ok) {
@@ -81,6 +114,15 @@ public class Menu {
             }
         }
     }
+/**
+* Exibe e gerencia o menu principal do colaborador.
+* <p>
+* Oferece 12 opções operacionais, o loop é encerrado quando o
+* colaborador seleciona a opção {@code 0} (Sair).
+* </p>
+*
+* @param col colaborador autenticado na sessão atual
+*/
 
     public void menuColaborador(Colaborador col) {
         boolean ok = true;
@@ -119,8 +161,10 @@ public class Menu {
         }
     }
 
-     /**Exclusivo do administrador*/
-
+/**
+* Exibe o submenu de gerenciamento de motoqueiros (exclusivo do administrador).
+* Permite listar, cadastrar e remover motoqueiros.
+*/
     private void menuMotoqueiros() {
         System.out.println("\n--- Motoqueiros --- 1.Listar 2.Cadastrar 3.Remover");
         System.out.print("Opcao: ");
@@ -145,7 +189,10 @@ public class Menu {
             }
         }
     }
-
+/**
+* Exibe o submenu de gerenciamento de regiões de entrega (exclusivo do administrador).
+* Permite listar, cadastrar e remover regiões com geração automática de ID.
+*/
     private void menuRegioes() {
         System.out.println("\n--- Regioes --- 1.Listar 2.Cadastrar 3.Remover");
         System.out.print("Opcao: ");
@@ -171,7 +218,10 @@ public class Menu {
         }
     }
 
-
+/**
+* Exibe o submenu de gerenciamento de colaboradores.
+* Permite listar, incluir, editar e remover colaboradores do sistema.
+*/
     private void menuColaboradores() {
         System.out.println("\n--- Colaboradores --- 1.Listar 2.Incluir 3.Editar 4.Remover");
         System.out.print("Opcao: ");
@@ -196,7 +246,10 @@ public class Menu {
             case "4" -> { System.out.print("ID: "); System.out.println(sistema.removerColaborador(lerInt()) ? "Removido." : "Nao encontrado."); }
         }
     }
-
+/**
+* Exibe o submenu de gerenciamento de clientes.
+* Permite listar, incluir, editar, remover e buscar clientes por nome.
+*/
     private void menuClientes() {
         System.out.println("\n--- Clientes --- 1.Listar 2.Incluir 3.Editar 4.Remover 5.Buscar");
         System.out.print("Opcao: ");
@@ -220,7 +273,15 @@ public class Menu {
             case "5" -> { System.out.print("Nome: "); sistema.buscarClientePorNome(sc.nextLine()).forEach(System.out::println); }
         }
     }
-
+/**
+* Exibe o submenu de gerenciamento de produtos do cardápio.
+* <p>
+* Quando incluir, aplica o padrão <b>Factory Method</b>: seleciona a fábrica
+*concreta ({@link HamburguerFactory}, {@link BebidaFactory} ou
+* {@link SobremesaFactory}) conforme o tipo digitado pelo usuario,
+* e delega a instanciação do produto à fábrica escolhida.
+* </p>
+*/
     private void menuProdutos() {
         System.out.println("\n--- Produtos --- 1.Listar 2.Incluir 3.Editar 4.Remover");
         System.out.print("Opcao: ");
@@ -269,7 +330,11 @@ public class Menu {
             case "4" -> { System.out.print("ID: "); System.out.println(sistema.removerProduto(lerInt()) ? "Removido." : "Nao encontrado."); }
         }
     }
-
+/**
+* Exibe o submenu de gerenciamento de estoque de ingredientes.
+* Permite visualizar o estoque atual, registrar recebimento de ingredientes
+* e verificar alertas de estoque mínimo.
+*/
     private void menuEstoque() {
         System.out.println("\n--- Estoque --- 1.Ver 2.Adicionar 3.Verificar alertas");
         System.out.print("Opcao: ");
@@ -286,7 +351,10 @@ public class Menu {
             case "3" -> sistema.verificarAlertas();
         }
     }
-
+/**
+* Exibe o submenu de relatórios financeiros.
+* Permite gerar relatório diário, mensal e balanço mensal.
+*/
     private void menuRelatorios() {
         System.out.println("\n--- Relatorios --- 1.Dia 2.Mes 3.Balanco mensal");
         System.out.print("Opcao: ");
@@ -296,7 +364,13 @@ public class Menu {
             case "3" -> { System.out.print("Mes/Ano: ");RelatorioVendas.gerarBalanco(sistema.getPedidos(), sc.nextLine()); }
         }
     }
-
+/**
+* O passo a passo do colaborador pelo fluxo de cadastro de um novo pedido:
+* seleciona cliente, os produtos, horário de entrega, adicionais
+* e região, então delega a criação ao {@link Sistema#realizarPedido}.
+*
+* @param idCol identificador do colaborador que está registrando o pedido
+*/
     private void fluxoNovoPedido(int idCol) {
         listarClientes();
         System.out.print("ID do cliente: ");  
@@ -335,7 +409,10 @@ public class Menu {
         Pedido p = sistema.realizarPedido(idC, idsP, ads, hora, idCol, idR);
         if (p != null) System.out.println("Pedido realizado: " + p);
     }
-
+/**
+* O passo a passo do usuário pelo fluxo de pesquisa de pedidos por intervalo de
+* data e horário, exibindo os resultados encontrados.
+*/
     private void fluxoPesquisa() {
         System.out.print("Data inicio(Dia/Mes/Ano): "); 
         String di = sc.nextLine();
@@ -348,7 +425,10 @@ public class Menu {
         List<Pedido> r = RelatorioVendas.pesquisarPorIntervalo(sistema.getPedidos(), di, df, nvl(hi), nvl(hf));
         System.out.println("Encontrados: " + r.size()); r.forEach(System.out::println);
     }
-
+/**
+* Solicita o ID da entrega e o horário de conclusão, delegando
+* a operação ao {@link sistema.GerenciadorEntregas}.
+*/
     private void fluxoConcluirEntrega() {
         System.out.print("ID da entrega: ");             
         int id = lerInt();
@@ -357,7 +437,10 @@ public class Menu {
         /** Passa as listas necessárias para concluir a entrega */
         sistema.getGerenciadorEntregas().concluirEntrega(id, h, sistema.getEntregas(), sistema.getMotoqueiros());
     }
-
+/**
+* Lista todos os clientes cadastrados ordenados alfabeticamente pelo nome,
+* utilizando um {@link Comparator} sem o compareTo.
+*/
     private void listarClientes() {
         if (sistema.getClientes().isEmpty()){ 
             System.out.println("Nenhum cliente."); 
@@ -385,6 +468,10 @@ public class Menu {
         });
         l.forEach(System.out::println);
     }
+    /**
+    * Lista todos os pedidos cadastrados ordenados pelo ID em ordem crescente,
+    * utilizando um {@link Comparator} sem o compareTo.
+    */
     private void listarPedidos() {
         if (sistema.getPedidos().isEmpty()) { 
             System.out.println("Nenhum pedido."); 
@@ -408,7 +495,12 @@ public class Menu {
     
     l.forEach(System.out::println);
 }   
-
+/**
+* Pede a senha atual e a nova senha para o usuário identificado pelo login,
+* delegando a alteração ao {@link Sistema#alterarSenha}.
+*
+* @param login login do usuário que deseja alterar a senha
+ */
     private void fluxoSenha(String login) {
         System.out.print("Senha atual: "); 
         String atual = sc.nextLine();
@@ -416,7 +508,12 @@ public class Menu {
         String nova  = sc.nextLine();
         sistema.alterarSenha(login, atual, nova);
     }
-
+/**
+* Lê um valor inteiro da entrada do usuário.
+* Retorna {@code 0} em caso de formato inválido.
+*
+* @return inteiro lido ou {@code 0} em caso de erro
+*/
     private int lerInt() { 
         try { 
             return Integer.parseInt(sc.nextLine().trim()); 
@@ -425,6 +522,12 @@ public class Menu {
             return 0; 
         } 
     }
+/**
+* Lê um valor decimal da entrada do usuário, aceitando vírgula como
+* separador. Retorna {@code 0} em caso de formato inválido.
+*
+* @return double lido ou {@code 0} em caso de erro
+*/
     private double lerDouble(){ 
         try{ 
             return Double.parseDouble(sc.nextLine().trim().replace(",", ".")); 
@@ -433,6 +536,15 @@ public class Menu {
             return 0; 
         } 
     }
+/**
+* Utilitário auxiliar que retorna {@code null} se a string for vazia ou nula,
+* ou a string sem espaços extras caso contrário. Usado para distinguir
+* campos não preenchidos (sem alteração) de campos intencionalmente em branco
+* durante edições.
+*
+* @param s string a ser verificada
+* @return a string sem espaços, ou {@code null} se vazia/nula
+*/
     private String nvl(String s){ 
         return (s == null || s.trim().isEmpty()) ? null : s.trim(); 
     }

@@ -1,7 +1,14 @@
 package model;
 
 /**
- * Representa uma venda concluída, associando pedido, extrato e colaborador.
+ * Representa uma venda concluída na hamburgueria.
+ * <p>
+ * Associa um pedido ao seu extrato e ao colaborador responsável pelo atendimento,
+ * registrando data e horário da transação.
+ * Cada venda é criada automaticamente pelo sistema no momento em que
+ * um pedido é realizado.
+ * </p>
+ *
  */
 public class Venda {
 
@@ -14,7 +21,15 @@ public class Venda {
     private String data;
     private String horario;
     private boolean concluida;
-
+/**
+* Cria uma nova venda com ID gerado automaticamente e status concluído.
+*
+* @param idPedido identificador do pedido associado
+* @param idExtrato identificador do extrato gerado
+* @param idColaborador identificador do colaborador que realizou o atendimento
+* @param data data da venda no formato {@code Dia/Mes/Ano}
+* @param horario horário da venda no formato {@code HH:mm}
+*/
     public Venda(int idPedido, int idExtrato, int idColaborador, String data, String horario) {
         this.id = proximoId++;
         this.idPedido = idPedido;
@@ -24,7 +39,17 @@ public class Venda {
         this.horario = horario;
         this.concluida = true;
     }
-
+/**
+* Reconstrói uma venda existente a partir de dados persistidos.
+*
+* @param id identificador único já existente
+* @param idPedido identificador do pedido
+* @param idExtrato identificador do extrato
+* @param idColaborador identificador do colaborador
+* @param data data da venda
+* @param horario horário da venda
+* @param concluida indica se a venda foi concluida
+*/
     public Venda(int id, int idPedido, int idExtrato, int idColaborador,
                  String data, String horario, boolean concluida) {
         this.id = id;

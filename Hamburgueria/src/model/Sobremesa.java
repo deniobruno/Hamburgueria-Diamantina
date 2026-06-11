@@ -4,12 +4,23 @@
  */
 package model;
 
-/**
- * Subtipo de Produto que representa uma sobremesa do cardápio.
- * Criado via ProdutoFactory, padrão Factory Method.
+
+ /**
+ * Subtipo de {@link Produto} que representa uma sobremesa do cardápio.
+ * <p>
+ * Instâncias criadas exclusivamente por meio de {@link factorymethod.SobremesaFactory}, seguindo o padrão de projeto<b>Factory Method</b>.
+ * </p>
+ *
+ * @author Dênio Mingote
  */
 public class Sobremesa extends Produto {
-
+/**
+* Cria uma nova sobremesa com os dados informados.
+*
+* @param idDescricao identificador do produto no cardápio
+* @param descricao nome ou descrição da sobremesa
+* @param valor preço unitário em reais
+*/
     public Sobremesa(int idDescricao, String descricao, double valor) {
         super(idDescricao, descricao, valor);
     }

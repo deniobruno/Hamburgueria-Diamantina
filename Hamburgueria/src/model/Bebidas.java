@@ -7,7 +7,7 @@ package model;
  /**
  * Subtipo de {@link Produto} que representa uma bebida do cardápio.
  * <p>
- * Instâncias criadas exclusivamente por meio de{@link factorymethod.BebidaFactory}, seguindo o padrão de projeto.
+ * Instâncias criadas exclusivamente por meio de{@link factorymethod.BebidaFactory}, seguindo o padrão de projeto <b>Factory Method</b>.
  * </p>
  */
 public class Bebidas extends Produto {

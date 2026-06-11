@@ -8,7 +8,7 @@ package model;
  * Subtipo de Produto que representa um hambúrguer do cardápio.
  * Subtipo de {@link Produto} que representa um hambúrguer do cardápio.
  * <p>
- * Instâncias criadas exclusivamente por meio de {@link factorymethod.HamburguerFactory}, seguindo o padrão de projeto.
+ * Instâncias criadas exclusivamente por meio de {@link factorymethod.HamburguerFactory}, seguindo o padrão de projeto <b>Factory Method</b>.
  * </p>
  */
 public class Hamburguer extends Produto {
