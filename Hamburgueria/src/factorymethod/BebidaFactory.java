@@ -6,10 +6,25 @@ package factorymethod;
 
 import model.Produto;    
 import model.Bebidas; 
-/** A classe é outra "fábrica concreta" dentro do padrão Factory Method.
- * Ela implementa a interface ProdutoFactory para garantir o contrato padrão de criação.
+/**
+ * Fábrica concreta do padrão de projeto <b>Factory Method</b> responsável
+ * pela criação de instâncias do tipo {@link Bebidas}.
+ * <p>
+ * Implementa {@link ProdutoFactory}, garantindo o contrato padrão de criação
+ * de produtos e desacoplando o código cliente da classe {@link Bebidas}.
+ * </p>
+ *
  */
 public class BebidaFactory implements ProdutoFactory {
+    
+ /**
+ * Cria e retorna uma nova instância de {@link Bebidas}.
+ *
+ * @param id identificador do produto no cardápio
+ * @param descricao nome ou descrição da bebida
+ * @param valor preço unitário em reais
+ * @return nova instância de {@link Bebidas}
+ */
     @Override
     public Produto criar(int id, String descricao, double valor) {
         return new Bebidas(id, descricao, valor);

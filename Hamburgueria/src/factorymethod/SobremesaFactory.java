@@ -7,12 +7,23 @@ package factorymethod;
 import model.Produto;    
 import model.Sobremesa; 
 /**
- * A atua como uma "fábrica concreta" dentro do padrão Factory Method.
- * Seu único objetivo é encapsular a lógica de criação de objetos do tipo Sobremesa.
- * Ela implementa a interface ProdutoFactory, o que garante que o sistema possua
- * um contrato padrão para criar diferentes tipos de produtos sem expor a lógica de instanciação.
+ * Fábrica concreta do padrão de projeto <b>Factory Method</b> responsável
+ * pela criação de instâncias do tipo {@link Sobremesa}.
+ * <p>
+ * Implementa {@link ProdutoFactory}, garantindo o contrato padrão de criação
+ * de produtos e desacoplando o código cliente da classe {@link Sobremesa}.
+ * </p>
+ *
  */
 public class SobremesaFactory implements ProdutoFactory {
+ /**
+ * Cria e retorna uma nova instância de {@link Sobremesa}.
+ *
+ * @param id identificador do produto no cardápio
+ * @param descricao nome ou descrição da sobremesa
+ * @param valor preço unitário em reais
+ * @return nova instância de {@link Sobremesa}
+ */
     @Override
     public Produto criar(int id, String descricao, double valor) {
         return new Sobremesa(id, descricao, valor);

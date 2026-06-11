@@ -1,13 +1,24 @@
 package model;
 
 /**
- * Representa uma região (bairro ou área) de entrega da hamburgueria.
+ * Representa uma região  de entrega da hamburgueria.
+ * <p>
+ * Regiões são associadas a pedidos e motoqueiros para organizar
+ * a logistica de entregas. O administrador é responsável por cadastrar
+ * e manter as regiões disponíveis no sistema.
+ * </p>
+ *
  */
 public class Regiao {
 
     private int id;
     private String nome;
-
+ /**
+ * Cria uma nova região com os dados informados.
+ *
+ * @param id identificador único da região
+ * @param nome nome do bairro (ex: Centro, Palha)
+ */
     public Regiao(int id, String nome) {
         this.id = id;
         this.nome = nome;

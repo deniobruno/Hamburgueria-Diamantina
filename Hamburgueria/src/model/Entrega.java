@@ -1,10 +1,17 @@
 package model;
 
 /**
- * Representa uma entrega, associando pedido a motoqueiro e região.
+
+ * Representa o processo de entrega de um pedido da hamburgueria.
+ * <p>
+ * Associa um pedido a um motoqueiro e a uma região de entrega,
+ * rastreando o status e os horários de retirada e conclusão.
+ * </p>
  */
 public class Entrega {
-
+ /**
+ * Enumeração dos possíveis estados de uma entrega.
+ */
     public enum StatusEntrega { AGUARDANDO_RETIRADA, EM_ROTA, CONCLUIDA, FALHA }
 
     private static int proximoId = 1;
@@ -16,6 +23,16 @@ public class Entrega {
     private StatusEntrega status;
     private String horarioRetirada;
     private String horarioConclusao;
+    
+ /**
+ * Cria uma nova entrega com ID gerado automaticamente, associando
+ * o pedido ao motoqueiro e à região. O status inicial é
+ * {@link StatusEntrega#AGUARDANDO_RETIRADA}.
+ *
+ * @param idPedido identificador do pedido a ser entregue
+ * @param idMotoqueiro identificador do motoqueiro responsável
+ * @param idRegiao identificador da região de entrega
+ */
 
     public Entrega(int idPedido, int idMotoqueiro, int idRegiao) {
         this.id = proximoId++;
@@ -26,6 +43,17 @@ public class Entrega {
         this.horarioRetirada = "";
         this.horarioConclusao = "";
     }
+  /**
+  * Reconstrói uma entrega existente a partir de dados persistidos (ex.: deserialização JSON).
+  *
+  * @param id identificador único já existente
+  * @param idPedido identificador do pedido
+  * @param idMotoqueiro identificador do motoqueiro
+  * @param idRegiao identificador da região
+  * @param status status atual da entrega
+  * @param horarioRetirada horário em que o motoqueiro retirou o pedido
+  * @param horarioConclusao horário em que a entrega foi concluída
+  */
 
     public Entrega(int id, int idPedido, int idMotoqueiro, int idRegiao, StatusEntrega status, String horarioRetirada, String horarioConclusao) {
         this.id = id;
@@ -37,10 +65,21 @@ public class Entrega {
         this.horarioConclusao = horarioConclusao;
         if (id >= proximoId) proximoId = id + 1;
     }
-
+ /**
+ * Registra a retirada do pedido pelo motoqueiro, atualizando o horário
+ * e alterando o status para {@link StatusEntrega#EM_ROTA}.
+ *
+ * @param horario horário de retirada no formato {@code HH:mm}
+ */
     public void registrarRetirada(String horario){
         this.horarioRetirada = horario; this.status = StatusEntrega.EM_ROTA; 
     }
+ /**
+ * Conclui a entrega, registrando o horário de conclusão e alterando
+ * o status para {@link StatusEntrega#CONCLUIDA}.
+ *
+ * @param horario horário de conclusão da entrega no formato {@code HH:mm}
+ */
     public void concluir(String horario){ 
         this.horarioConclusao = horario; this.status = StatusEntrega.CONCLUIDA; 
     }

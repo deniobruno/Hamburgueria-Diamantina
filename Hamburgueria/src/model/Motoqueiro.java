@@ -1,8 +1,15 @@
 package model;
 
+
 /**
  * Representa um motoqueiro responsável pelas entregas.
- * O sistema mantém no mínimo 5 motoqueiros ativos.
+ * <p>
+ * O sistema deixa como um mínimo de 5 motoqueiros ativos, controlado por
+ * {@link sistema.GerenciadorEntregas#MINIMO_MOTOQUEIROS}. Cada motoqueiro
+ * possui uma região de preferência e uma disponibilidade gerenciada
+ * pelo {@link sistema.GerenciadorEntregas}.
+ * </p>
+ *
  */
 public class Motoqueiro {
 
@@ -13,6 +20,15 @@ public class Motoqueiro {
     private String telefone;
     private int idRegiao;
     private boolean disponivel;
+    
+    /**
+     * Cria um novo motoqueiro com ID gerado automaticamente e disponibilidade
+     * inicial definida como {@code true}.
+     *
+     * @param nome nome completo do motoqueiro
+     * @param telefone telefone 
+     * @param idRegiao identificador da região de preferência para entregas
+     */
 
     public Motoqueiro(String nome, String telefone, int idRegiao) {
         this.id = proximoId++;
@@ -21,6 +37,15 @@ public class Motoqueiro {
         this.idRegiao = idRegiao;
         this.disponivel = true;
     }
+    /**
+     * Reconstrói um motoqueiro existente a partir de dados persistidos.
+     *
+     * @param id identificador único já existente
+     * @param nome nome completo do motoqueiro
+     * @param telefone telefone de contato
+     * @param idRegiao identificador da região de preferência
+     * @param disponivel indica se o motoqueiro está disponível para uma nova entrega
+     */
 
     public Motoqueiro(int id, String nome, String telefone, int idRegiao, boolean disponivel) {
         this.id = id;
@@ -30,7 +55,12 @@ public class Motoqueiro {
         this.disponivel = disponivel;
         if (id >= proximoId) proximoId = id + 1;
     }
-
+/**
+* Simula o envio de uma notificação via WhatsApp do motoqueiro informando
+* que a entrega do pedido foi concluída com sucesso.
+*
+* @param idPedido identificador do pedido entregue
+*/
     public void notificarEntregaConcluida(int idPedido) {
         System.out.println("[WhatsApp] " + nome + " informou: Pedido #" + idPedido + " entregue!");
     }

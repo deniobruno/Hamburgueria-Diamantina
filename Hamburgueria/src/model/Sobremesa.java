@@ -8,7 +8,8 @@ package model;
  /**
  * Subtipo de {@link Produto} que representa uma sobremesa do cardápio.
  * <p>
- * Instâncias criadas exclusivamente por meio de {@link factorymethod.SobremesaFactory}, seguindo o padrão de projeto<b>Factory Method</b>.
+ * Instâncias criadas exclusivamente por meio de {@link factorymethod.SobremesaFactory},
+ * seguindo o padrão de projeto<b>Factory Method</b>.
  * </p>
  *
  * @author Dênio Mingote
