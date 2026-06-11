@@ -1,0 +1,40 @@
+[
+  {
+    "id": 1,
+    "nome": "Denio",
+    "telefone": "354165121321",
+    "endereco": "rua",
+    "historicoIdPedidos": [
+      1
+    ],
+    "idUltimoPedido": 1,
+    "dataUltimoPedido": "10/06/2026"
+  },
+  {
+    "id": 1,
+    "nome": "pedro",
+    "telefone": "312312321",
+    "endereco": "largo",
+    "historicoIdPedidos": [],
+    "idUltimoPedido": -1,
+    "dataUltimoPedido": ""
+  },
+  {
+    "id": 2,
+    "nome": "denio",
+    "telefone": "3123123",
+    "endereco": "largo",
+    "historicoIdPedidos": [],
+    "idUltimoPedido": -1,
+    "dataUltimoPedido": ""
+  },
+  {
+    "id": 3,
+    "nome": "ana",
+    "telefone": "231231231",
+    "endereco": "largo",
+    "historicoIdPedidos": [],
+    "idUltimoPedido": -1,
+    "dataUltimoPedido": ""
+  }
+]

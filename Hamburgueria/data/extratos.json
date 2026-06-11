@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "idPedido": 1,
+    "idCliente": 1,
+    "nomeCliente": "Denio",
+    "valorTotal": 32.0,
+    "valorCancelamento": 0.0,
+    "cancelado": false,
+    "dataGeracao": "10/06/2026",
+    "horarioGeracao": "22:49",
+    "descricaoProduto": "xbacon + coca + "
+  }
+]

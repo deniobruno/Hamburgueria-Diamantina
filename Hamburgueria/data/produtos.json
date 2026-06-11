@@ -1,0 +1,14 @@
+[
+  {
+    "idDescricao": 1,
+    "descricao": "xbacon",
+    "valor": 25.0,
+    "adicionaisDisponiveis": []
+  },
+  {
+    "idDescricao": 2,
+    "descricao": "coca",
+    "valor": 7.0,
+    "adicionaisDisponiveis": []
+  }
+]

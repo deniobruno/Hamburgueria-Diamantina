@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "idCliente": 1,
+    "idsProdutos": [
+      1,
+      2
+    ],
+    "idsAdicionais": [],
+    "data": "10/06/2026",
+    "horarioPedido": "22:49",
+    "horarioEntregaPrevisto": "12:40",
+    "status": "EM_PREPARO",
+    "valorTotal": 32.0,
+    "valorCancelamento": 0.0
+  }
+]
