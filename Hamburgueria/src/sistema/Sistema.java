@@ -294,13 +294,23 @@ public class Sistema {
         return true;
     }
 
-    /**  CRUD Produtos */
-
+     /**
+     * Inclui um novo produto no cardápio e persiste a lista atualizada.
+     *
+     * @param p produto a ser incluído
+     */
     public void incluirProduto(Produto p) {
         produtos.add(p);
         PersistenciaJson.salvarLista(produtos, F_PRODUTOS);
     }
-
+    /**
+     * Edita os dados de um produto existente.
+     *
+     * @param id identificador do produto a editar
+     * @param descricao nova descrição, ou {@code null} para não alterar
+     * @param valor novo valor
+     * @return {@code true} se encontrado e atualizado; {@code false} se não existir
+     */
     public boolean editarProduto(int id, String descricao, double valor) {
         Produto p = buscarProduto(id);
         if (p == null) return false;
@@ -309,17 +319,41 @@ public class Sistema {
         PersistenciaJson.salvarLista(produtos, F_PRODUTOS);
         return true;
     }
-
+    /**
+     * Remove um produto do cardápio pelo seu identificador.
+     *
+     * @param id identificador do produto a remover
+     * @return {@code true} se removido; {@code false} se não encontrado
+     */
     public boolean removerProduto(int id) {
         boolean ok = produtos.removeIf(p -> p.getIdDescricao() == id);
         if (ok) PersistenciaJson.salvarLista(produtos, F_PRODUTOS);
         return ok;
     }
-
+    /**
+     * Busca um produto pelo seu identificador.
+     *
+     * @param id identificador do produto
+     * @return o {@link Produto} encontrado, ou {@code null} se não existir
+     */
     public Produto buscarProduto(int id) {
         return produtos.stream().filter(p -> p.getIdDescricao() == id).findFirst().orElse(null);
     }
-
+    /**
+     * Realiza fluxo de um novo pedido: valida cliente e produtos,
+     * calcula o valor total (produtos + adicionais), cria os objetos
+     * {@link Pedido}, {@link Extrato} e {@link Venda}, aloca uma estação de
+     * preparo (ou enfileira o pedido), cria a entrega e atualiza o estoque.
+     *
+     * @param idCliente identificador do cliente que realizou o pedido
+     * @param idsProduto lista de IDs dos produtos solicitados
+     * @param idsAdicionais lista de IDs dos adicionais solicitados
+     * @param horarioEntrega horário previsto para a entrega no formato {@code HH:mm}
+     * @param idColaborador identificador do colaborador que registrou o pedido
+     * @param idRegiao identificador da região de entrega
+     * @return o {@link Pedido} criado, ou {@code null} se cliente não encontrado
+     * ou nenhum produto informado
+     */
     public Pedido realizarPedido(int idCliente, List<Integer> idsProduto, List<Integer> idsAdicionais,
                                   String horarioEntrega, int idColaborador, int idRegiao) {
         
@@ -382,7 +416,15 @@ public class Sistema {
         atualizarEstoqueAposPedido();
         return pedido;
     }
-
+    /**
+     * Cancela um pedido existente, deixando marcado  o extrato correspondente como cancelado,
+     * liberando a estação de preparo e chamando o próximo pedido da fila, se houver.
+     * Persiste todos os dados ao final.
+     *
+     * @param idPedido identificador do pedido a ser cancelado
+     * @return {@code true} se cancelado com sucesso; {@code false} se não encontrado
+     * ou em estado inválido para cancelamento
+     */
     public boolean cancelarPedido(int idPedido) {
         Pedido pedido = pedidos.stream().filter(p -> p.getId() == idPedido).findFirst().orElse(null);
         if (pedido == null) { System.out.println("[Erro] Pedido #" + idPedido + " nao encontrado."); return false; }
@@ -404,14 +446,25 @@ public class Sistema {
             return false;
         }
     }
-
+     /**
+     * Remove um pedido do sistema pelo seu identificador e persiste a lista.
+     *
+     * @param idPedido identificador do pedido a remover
+     * @return {@code true} se removido; {@code false} se não encontrado
+     */
     public boolean removerPedido(int idPedido) {
         boolean ok = pedidos.removeIf(p -> p.getId() == idPedido);
         if (ok) salvarTudo();
         return ok;
     }
 
-
+    /**
+     * Registra o recebimento de um ingrediente no estoque.
+     * Se o ingrediente já existir, repõe a quantidade; caso contrário, cadastra
+     * como novo. Persiste a lista e verifica alertas ao final.
+     *
+     * @param ingrediente ingrediente recebido com a quantidade a repor ou cadastrada
+     */
     public void receberIngrediente(Ingrediente ingrediente) {
         Ingrediente ex = ingredientes.stream().filter(i -> i.getId() == ingrediente.getId()).findFirst().orElse(null);
         if (ex != null) { ex.repor(ingrediente.getQuantidadeAtual()); System.out.println("[Estoque] Reposicao: " + ex); }
@@ -419,7 +472,10 @@ public class Sistema {
         PersistenciaJson.salvarLista(ingredientes, F_INGREDIENTES);
         verificarAlertas();
     }
-
+    /**
+     * Verifica o estoque de todos os ingredientes e imprime alertas para
+     * os que estiverem abaixo do nível mínimo configurado.
+     */
     public void verificarAlertas() {
         boolean alerta = false;
         for (Ingrediente i : ingredientes) {
@@ -431,7 +487,10 @@ public class Sistema {
         }
         if (!alerta) System.out.println("[Estoque] Todos em nivel adequado.");
     }
-
+    /**
+     * Consome 0,1 unidade de cada ingrediente cadastrado após a realização
+     * de um pedido e verifica se algum atingiu o nível de alerta.
+     */
     private void atualizarEstoqueAposPedido() {
         for (Ingrediente i : ingredientes) i.consumir(0.1);
         verificarAlertas();
