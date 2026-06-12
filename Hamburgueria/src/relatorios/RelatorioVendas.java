@@ -6,10 +6,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Gera relatórios de vendas e pedidos (diário, mensal e balanço).
+ * Classe utilitária responsável pela geração de relatórios de vendas e
+ * balanços financeiros da hamburgueria.
+ * <p>
+ * Todos os métodos são estáticos, a classe funciona como namespace de
+ * funções, não sendo necessário instanciar. Utiliza a
+ * Stream API do Java para filtragens e agregações sobre as listas de
+ * pedidos e vendas fornecidas por parâmetro.
+ * </p>
+ *
  */
 public class RelatorioVendas {
-
+    /**
+     * Emite um relatório diário de vendas, listando todos os pedidos
+     * vendidos na data informada e o total arrecadado.
+     *
+     * @param vendas lista de vendas do sistema
+     * @param pedidos lista de pedidos do sistema
+     * @param data data a filtrar no formato {@code Dia/Mes/Ano}
+     */
     public static void emitirDia(List<Venda> vendas, List<Pedido> pedidos, String data) {
         List<Venda> filtradas = vendas.stream().filter(v -> v.getData().equals(data)).collect(Collectors.toList());
         System.out.println("\n========================================");
@@ -28,7 +43,15 @@ public class RelatorioVendas {
         System.out.printf("TOTAL ARRECADADO: R$%.2f%n", total);
         System.out.println("========================================\n");
     }
-
+    /**
+     * Emite um relatório mensal de vendas, exibindo o total de vendas
+     * e o valor arrecadado no mês informado.
+     *
+     * @param vendas lista de vendas do sistema
+     * @param pedidos lista de pedidos do sistema
+     * @param mesAno mês e ano a filtrar no formato {@code Mes/Ano}
+     * comparado com a substring final da data de cada venda)
+     */
     public static void emitirMes(List<Venda> vendas, List<Pedido> pedidos, String mesAno) {
         List<Venda> filtradas = vendas.stream()
                 .filter(v -> v.getData().length() >= 7 && v.getData().substring(3).equals(mesAno))
@@ -43,7 +66,13 @@ public class RelatorioVendas {
         System.out.printf("TOTAL ARRECADADO: R$%.2f%n", total);
         System.out.println("========================================\n");
     }
-
+    /**
+     * Gera um balanço mensal consolidado com total de pedidos, entregas,
+     * cancelamentos, valor bruto arrecadado, taxas de cancelamento e ticket médio.
+     *
+     * @param pedidos lista de pedidos do sistema
+     * @param mesAno mês e ano a filtrar no formato {@code Mes/Ano}
+     */
     public static void gerarBalanco(List<Pedido> pedidos, String mesAno) {
         List<Pedido> filtrados = pedidos.stream()
                 .filter(p -> p.getData().length() >= 7 && p.getData().substring(3).equals(mesAno))
@@ -64,7 +93,21 @@ public class RelatorioVendas {
         System.out.printf("Ticket medio:          R$%.2f%n", ticket);
         System.out.println("========================================\n");
     }
-
+     /**
+     * Pesquisa pedidos dentro de um intervalo de datas e, opcionalmente,
+     * dentro de um intervalo de horários. A comparação de datas e horários
+     * é feita lexicograficamente sobre as strings nos formatos
+     * {@code Dia/MM/AAAA} e {@code HH:mm}.
+     *
+     * @param pedidos    lista de pedidos do sistema
+     * @param dataInicio data inicial do intervalo (formato {@code DD/MM/AAAA})
+     * @param dataFim    data final do intervalo (formato {@code DD/MM/AAAA})
+     * @param horaInicio horário inicial do intervalo (formato {@code HH:mm}),
+     *                   ou {@code null} para ignorar filtro de horário
+     * @param horaFim    horário final do intervalo (formato {@code HH:mm}),
+     *                   ou {@code null} para ignorar filtro de horário
+     * @return lista de pedidos que se enquadram no intervalo informado
+     */
     public static List<Pedido> pesquisarPorIntervalo(List<Pedido> pedidos,
             String dataInicio, String dataFim, String horaInicio, String horaFim) {
         return pedidos.stream().filter(p -> {
@@ -75,7 +118,14 @@ public class RelatorioVendas {
             return h.compareTo(horaInicio) >= 0 && h.compareTo(horaFim) <= 0;
         }).collect(Collectors.toList());
     }
-
+    
+    /**
+     * Busca um pedido pelo seu identificador dentro da lista fornecida.
+     *
+     * @param pedidos lista de pedidos a pesquisar
+     * @param id      identificador do pedido desejado
+     * @return o {@link Pedido} encontrado, ou {@code null} se não existir
+     */
     private static Pedido buscarPedido(List<Pedido> pedidos, int id) {
         return pedidos.stream().filter(p -> p.getId() == id).findFirst().orElse(null);
     }
