@@ -12,7 +12,6 @@ package model;
  * seguindo o padrão de projeto<b>Factory Method</b>.
  * </p>
  *
- * @author Dênio Mingote
  */
 public class Sobremesa extends Produto {
 /**

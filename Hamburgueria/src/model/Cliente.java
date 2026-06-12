@@ -5,7 +5,13 @@ import java.util.List;
 
 /**
  * Representa um cliente da hamburgueria.
- * Implementa {@link Comparator} para ordenações por diferentes atributos 
+ * <p>
+ * Utiliza um contador estático interno para geração automática de IDs únicos
+ * e um histórico de pedidos realizados. Implementa {@link Comparator} para
+ * permitir múltiplas estratégias de ordenação: por nome (padrão), por ID e
+ * por telefone.
+ * </p>
+ *
  */
 public class Cliente implements Comparator<Cliente>{
 
@@ -19,6 +25,13 @@ public class Cliente implements Comparator<Cliente>{
     private int idUltimoPedido;
     private String dataUltimoPedido;
 
+    /**
+     * Cria um novo cliente com ID gerado automaticamente pelo sistema.
+     *
+     * @param nome nome completo do cliente
+     * @param telefone telefone de contato
+     * @param endereco endereço de entrega
+     */
     public Cliente(String nome, String telefone, String endereco) {
         this.id = proximoId++;
         this.nome = nome;
@@ -28,7 +41,15 @@ public class Cliente implements Comparator<Cliente>{
         this.idUltimoPedido = -1;
         this.dataUltimoPedido = "";
     }
-
+    /**
+     * Reconstrói um cliente existente a partir de dados persistidos.
+     * Atualiza o contador estático {@code proximoId} se o ID informado for maior ou igual ao atual.
+     *
+     * @param id identificador único já existente
+     * @param nome nome completo do cliente
+     * @param telefone telefone de contato
+     * @param endereco endereço de entrega
+     */
     public Cliente(int id, String nome, String telefone, String endereco) {
         this.id = id;
         this.nome = nome;
@@ -82,14 +103,28 @@ public class Cliente implements Comparator<Cliente>{
     public void setDataUltimoPedido(String dataUltimoPedido) {
         this.dataUltimoPedido = dataUltimoPedido;
     }
-
+    /**
+     * Registra um pedido realizado pelo cliente, atualizando o histórico
+     * e os campos de último pedido.
+     *
+     * @param idPedido identificador do pedido realizado
+     * @param data data de realização do pedido (formato {@code Dia/Mes/Ano})
+     */
     public void registrarPedido(int idPedido, String data) {
         this.historicoIdPedidos.add(idPedido);
         this.idUltimoPedido = idPedido;
         this.dataUltimoPedido = data;
     }
 
-    /** Comparator por nome (ordem alfabética). */
+    /**
+     * Uso do comparator para ordenar clientes em ordem alfabética pelo nome.
+     * A comparação é implementada manualmente,sem uso do compareTo.
+     *
+     * @param c1 primeiro cliente a ser comparado
+     * @param c2 segundo cliente a ser comparado
+     * @return valor negativo se {@code c1} vem antes de {@code c2},
+     * positivo se {@code c1} vem depois, ou zero se forem iguais
+     */
     @Override
     public int compare(Cliente c1, Cliente c2) {
 
@@ -126,6 +161,13 @@ public class Cliente implements Comparator<Cliente>{
 
     return 0;
 }
+     /**
+     * Ordena clientes pelo ID numérico em ordem crescente.
+     *
+     * @param c1 primeiro cliente a ser comparado
+     * @param c2 segundo cliente a ser comparado
+     * @return valor negativo se {@code c1.id} é menor, positivo se maior, ou zero se iguais
+     */
     public int compararPorId(Cliente c1, Cliente c2){
 
     if(c1.getId() > c2.getId()){
@@ -138,6 +180,14 @@ public class Cliente implements Comparator<Cliente>{
 
     return 0;
 }
+     /**
+     * Ordena clientes lexicograficamente pelo número de telefone.
+     *
+     * @param c1 primeiro cliente a ser comparado
+     * @param c2 segundo cliente a ser comparado
+     * @return valor negativo se {@code c1} vem antes de {@code c2},
+     * positivo se vem depois, ou zero se os telefones forem iguais
+     */
     public int compararPorTelefone(Cliente c1, Cliente c2){
 
     String t1 = c1.getTelefone();

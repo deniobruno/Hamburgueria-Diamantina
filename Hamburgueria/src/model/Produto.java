@@ -7,12 +7,12 @@ import java.util.List;
  * Representa um produto/lanche do cardápio.
  *
  * Estratégias de contador estático (Alternativa 11):
- * Estratégia A — {@code private static} com get/set:
+ * Estratégia A: {@code private static} com get/set:
  * Vantagem: encapsulamento total, nenhuma outra classe pode alterar o contador
  * diretamente. Segue o princípio de menor privilégio.
  * Desvantagem: requer métodos extras (get/set).
  *
- * Estratégia B — {@code protected static}:
+ * Estratégia B: {@code protected static}:
  * Vantagem: subclasses e classes do mesmo pacote podem ler/escrever diretamente,
  * reduzindo código boilerplate.
  * Desvantagem: qualquer subclasse pode acidentalmente sobrescrever o valor,

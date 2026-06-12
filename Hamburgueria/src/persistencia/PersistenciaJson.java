@@ -96,7 +96,7 @@ public class PersistenciaJson {
      * Cria o diretório informado (e todos os diretórios pai necessários),
      * caso ainda não existam.
      *
-     * @param diretorio caminho do diretório a ser criado (ex.: {@code "data/"})
+     * @param diretorio caminho do diretório a ser criado (ex: {@code "data/"})
      */
     public static void garantirDiretorio(String diretorio) {
         File dir = new File(diretorio);

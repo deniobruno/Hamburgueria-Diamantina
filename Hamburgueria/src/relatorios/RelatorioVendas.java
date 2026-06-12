@@ -96,16 +96,15 @@ public class RelatorioVendas {
      /**
      * Pesquisa pedidos dentro de um intervalo de datas e, opcionalmente,
      * dentro de um intervalo de horários. A comparação de datas e horários
-     * é feita lexicograficamente sobre as strings nos formatos
-     * {@code Dia/MM/AAAA} e {@code HH:mm}.
+     * é feitasobre as strings nos formatos {@code Dia/Mes/Ano} e {@code HH:mm}.
      *
-     * @param pedidos    lista de pedidos do sistema
-     * @param dataInicio data inicial do intervalo (formato {@code DD/MM/AAAA})
-     * @param dataFim    data final do intervalo (formato {@code DD/MM/AAAA})
+     * @param pedidos lista de pedidos do sistema
+     * @param dataInicio data inicial do intervalo (formato {@code Dia/Mes/Ano})
+     * @param dataFim data final do intervalo (formato {@code Dia/Mes/Ano})
      * @param horaInicio horário inicial do intervalo (formato {@code HH:mm}),
-     *                   ou {@code null} para ignorar filtro de horário
-     * @param horaFim    horário final do intervalo (formato {@code HH:mm}),
-     *                   ou {@code null} para ignorar filtro de horário
+     * ou {@code null} para ignorar filtro de horário
+     * @param horaFim horário final do intervalo (formato {@code HH:mm}),
+     * ou {@code null} para ignorar filtro de horário
      * @return lista de pedidos que se enquadram no intervalo informado
      */
     public static List<Pedido> pesquisarPorIntervalo(List<Pedido> pedidos,
@@ -123,7 +122,7 @@ public class RelatorioVendas {
      * Busca um pedido pelo seu identificador dentro da lista fornecida.
      *
      * @param pedidos lista de pedidos a pesquisar
-     * @param id      identificador do pedido desejado
+     * @param id identificador do pedido desejado
      * @return o {@link Pedido} encontrado, ou {@code null} se não existir
      */
     private static Pedido buscarPedido(List<Pedido> pedidos, int id) {

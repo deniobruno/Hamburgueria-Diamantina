@@ -5,18 +5,31 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Representa um pedido realizado por um cliente.
- * Contador estático para rastrear instâncias criadas (Alternativa 12).
- * Implementa {@link Comparator} para ordenações por diferentes atributos (Alternativa 13).
+ * Representa um pedido realizado pelo cliente da hamburgueria.
+ * <p>
+ * Mantém um contador estático ({@code totalPedidosCriados}) que rastreia
+ * o total de instâncias criadas durante toda a execução do sistema
+ * (Alternativa 12). Implementa {@link Comparator} para permitir três
+ * critérios de ordenação distintos: por data (padrão), por valor total
+ * e por status (Alternativa 13).
+ * </p>
+ *
  */
 public class Pedido implements Comparator<Pedido>{
-
+    /**
+     * Enumeração dos possíveis estados de um pedido no fluxo de atendimento.
+     */
     public enum Status { PENDENTE, EM_PREPARO, PRONTO, SAIU_ENTREGA, ENTREGUE, CANCELADO }
 
     private static int totalPedidosCriados = 0;
     private static int proximoId = 1;
 
-    /** Retorna o total de instâncias de Pedido criadas (Alternativa 12). */
+    /**
+     * Retorna o total de instâncias de {@code Pedido} criadas desde o início
+     * da execução do sistema (Alternativa 12).
+     *
+     * @return número total de pedidos instanciados
+     */
     public static int getTotalPedidosCriados(){
         return totalPedidosCriados; 
     }
@@ -31,6 +44,17 @@ public class Pedido implements Comparator<Pedido>{
     private Status status;
     private double valorTotal;
     private double valorCancelamento;
+    /**
+     * Cria um novo pedido com ID gerado automaticamente pelo sistema.
+     * Incrementa o contador estático {@code totalPedidosCriados}.
+     *
+     * @param idCliente identificador do cliente que realizou o pedido
+     * @param idsProdutos lista de IDs dos produtos solicitados
+     * @param data data do pedido no formato {@code Dia/Mes/Ano}
+     * @param horarioPedido horário de criação no formato {@code HH:mm}
+     * @param horarioEntregaPrevisto horário previsto para a entrega
+     * @param valorTotal valor total calculado (produtos e adicionais)
+     */
 
     public Pedido(int idCliente, List<Integer>idsProdutos, String data, String horarioPedido, String horarioEntregaPrevisto, double valorTotal) {
         this.id = proximoId++;
@@ -45,7 +69,19 @@ public class Pedido implements Comparator<Pedido>{
         this.valorCancelamento = 0;
         totalPedidosCriados++;
     }
-
+     /**
+     * Reconstrói um pedido existente a partir de dados persistidos.
+     * Também incrementa {@code totalPedidosCriados} e atualiza {@code proximoId} se necessário.
+     *
+     * @param id identificador único já existente
+     * @param idCliente identificador do cliente
+     * @param idsProdutos lista de IDs dos produtos
+     * @param data data do pedido no formato {@code Dia/Mes/Ano}
+     * @param horarioPedido horário de criação no formato {@code HH:mm}
+     * @param horarioEntregaPrevisto horário previsto para a entrega
+     * @param valorTotal valor total do pedido
+     * @param status status atual do pedido
+     */
     public Pedido(int id, int idCliente, List<Integer> idsProdutos, String data, String horarioPedido, String horarioEntregaPrevisto, double valorTotal, Status status) {
         this.id = id;
         this.idCliente = idCliente;
@@ -60,10 +96,15 @@ public class Pedido implements Comparator<Pedido>{
         if (id >= proximoId) proximoId = id + 1;
         totalPedidosCriados++;
     }
-
     /**
      * Cancela o pedido, retendo 35% do valor como taxa.
-     * @return valor devolvido ao cliente (65%)
+     * <p>
+     * Atualiza o status para {@link Status#CANCELADO} e imprime no console
+     * o valor retido e o valor devolvido ao cliente (65%).
+     * </p>
+     *
+     * @return valor devolvido ao cliente, correspondente a 65% do total
+     * @throws IllegalStateException se o pedido já foi entregue ou já está cancelado
      */
     public double cancelar() {
         if (status == Status.ENTREGUE) throw new IllegalStateException("Pedido já entregue.");
@@ -100,6 +141,11 @@ public class Pedido implements Comparator<Pedido>{
     public void setIdsAdicionais(List<Integer> idsAdicionais){
         this.idsAdicionais = idsAdicionais; 
     }
+    /**
+     * Adiciona um adicional à lista de adicionais deste pedido.
+     *
+     * @param idAdicional identificador do adicional a ser incluído
+     */
     public void adicionarAdicional(int idAdicional){ 
         this.idsAdicionais.add(idAdicional); 
     }
@@ -140,7 +186,16 @@ public class Pedido implements Comparator<Pedido>{
         this.valorCancelamento = valorCancelamento; 
     }
 
-    /** Compara por data e horário (mais antigo primeiro). */
+      /**
+     * Comparator padrão: ordena pedidos por data em ordem cronológica crescente
+     * (mais antigo primeiro). A comparação é feita via formato
+     * {@code Dia/Mes/Ano}, sem uso de classes de data.
+     *
+     * @param p1 primeiro pedido a ser comparado
+     * @param p2 segundo pedido a ser comparado
+     * @return valor negativo se {@code p1} é mais antigo, positivo se mais recente,
+     * ou zero se as datas forem iguais
+     */
     @Override
     public int compare(Pedido p1, Pedido p2) {
 
@@ -175,6 +230,13 @@ public class Pedido implements Comparator<Pedido>{
 
     return 0;
 }
+     /**
+     * Ordena pedidos pelo valor total em ordem crescente.
+     *
+     * @param p1 primeiro pedido a ser comparado
+     * @param p2 segundo pedido a ser comparado
+     * @return valor negativo se {@code p1} tem menor valor, positivo se maior, zero se iguais
+     */
     public int compararPorValor(Pedido p1, Pedido p2){
 
     if(p1.getValorTotal() > p2.getValorTotal()){
@@ -187,6 +249,15 @@ public class Pedido implements Comparator<Pedido>{
 
     return 0;
 }
+     /**
+     * Ordena pedidos pela posição ordinal do seu {@link Status} no enum,
+     * permitindo agrupar pedidos por etapa do fluxo de atendimento.
+     *
+     * @param p1 primeiro pedido a ser comparado
+     * @param p2 segundo pedido a ser comparado
+     * @return valor negativo se {@code p1} tem status anterior, positivo se posterior,
+     * zero se iguais
+     */
     public int compararPorStatus(Pedido p1, Pedido p2){
 
     int status1 = p1.getStatus().ordinal();

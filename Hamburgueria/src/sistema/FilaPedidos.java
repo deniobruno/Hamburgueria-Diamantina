@@ -43,7 +43,7 @@ public class FilaPedidos {
         return p;
     }
  /**
- * Retorna o primeiro pedido da fila sem removê-lo.
+ * Retorna o primeiro pedido da fila sem remover ele.
  *
  * @return o pedido no início da fila, ou {@code null} se vazia
  */

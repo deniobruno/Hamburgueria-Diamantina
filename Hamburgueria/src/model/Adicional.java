@@ -1,14 +1,25 @@
 package model;
 
 /**
- * Representa um adicional que pode ser acrescentado a um lanche (ex: bacon extra, queijo duplo).
+ * Representa um adicional que pode ser acrescentado a um lanche.
+ * <p>
+ * Exemplos de adicionais: bacon, queijo duplo, molho especial.
+ * Cada adicional possui um identificador único, nome e valor unitário.
+ * </p>
+ *
  */
 public class Adicional {
 
     private int id;
     private String nome;
     private double valor;
-
+    /**
+     * Cria um novo adicional com os dados informados.
+     *
+     * @param id identificador único do adicional
+     * @param nome nome do adicional (ex: Bacon)
+     * @param valor preço do adicional em reais
+     */
     public Adicional(int id, String nome, double valor) {
         this.id = id;
         this.nome = nome;
