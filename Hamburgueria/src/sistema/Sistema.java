@@ -14,8 +14,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Classe central do sistema de hamburgueria.
- * Gerencia todas as entidades e coordena as operações.
+ * Classe central do sistema de gerenciamento.
+ * <p>
+ * Implementa o padrão de projeto <b>Singleton</b>, garantindo que apenas
+ * uma instância exista durante toda a execução da aplicação. Atua como
+ * fachada (Facade), coordenando todas as entidades do domínio: clientes,
+ * colaboradores, produtos, pedidos, extratos, vendas, ingredientes,
+ * motoqueiros, regiões e entregas.
+ * </p>
+ * <p>
+ * Delega a persistência a {@link PersistenciaJson} e as
+ * regras de entrega a {@link GerenciadorEntregas}. Pedidos que não
+ * encontram estação de preparo livre são enfileirados em {@link FilaPedidos}.
+ * </p>
+ *
  */
 public class Sistema {
 
@@ -49,6 +61,11 @@ public class Sistema {
     private FilaPedidos filaPedidos;
 
     private static Sistema instancia;
+    /**
+     * Construtor privado, impede a criação direta de instâncias fora desta classe,
+     * garantindo o padrão Singleton. Inicializa todas as listas e os componentes
+     * auxiliares {@link GerenciadorEntregas} e {@link FilaPedidos}.
+     */
 
     private Sistema() {
         clientes = new ArrayList<>();
@@ -66,19 +83,32 @@ public class Sistema {
         gerenciadorEntregas = new GerenciadorEntregas();
         filaPedidos = new FilaPedidos();
     }
-
+    /**
+     * Retorna a única instância do sistema (padrão Singleton).
+     * Cria a instância na primeira chamada e a reutiliza nas seguintes.
+     *
+     * @return instância única de {@code Sistema}
+     */
     public static Sistema getInstancia() {
         if (instancia == null) instancia = new Sistema();
         return instancia;
     }
 
-    /** Retorna total de pedidos criados no sistema. */
+     /**
+     * Retorna o total de pedidos criados desde o início da execução.
+     * Delega a chamada a {@link Pedido#getTotalPedidosCriados()}.
+     *
+     * @return número total de instâncias de {@link Pedido} criadas
+     */
     public static int getTotalPedidosCriados(){ 
         return Pedido.getTotalPedidosCriados(); 
     }
 
-    /** Persistência */
-
+     /**
+     * Carrega todos os dados persistidos dos arquivos JSON para as listas em memória.
+     * Se o arquivo do administrador não existir, cria um administrador padrão
+     * ({@code admin / admin123}) e o persiste imediatamente.
+     */
     public void carregar() {
         PersistenciaJson.garantirDiretorio(DIR);
         clientes = PersistenciaJson.carregarLista(F_CLIENTES,new TypeToken<List<Cliente>>(){}.getType());
@@ -100,7 +130,10 @@ public class Sistema {
         System.out.println("[Sistema] Carregado. Clientes: " + clientes.size()
                 + " | Pedidos: " + pedidos.size() + " | Produtos: " + produtos.size());
     }
-
+    /**
+     * Persiste todas as listas e o objeto administrador nos respectivos arquivos JSON,
+     * garantindo que os dados em memória sejam salvos ao fim de cada sessão.
+     */
     public void salvarTudo() {
         PersistenciaJson.salvarLista(clientes,F_CLIENTES);
         PersistenciaJson.salvarLista(pedidos,F_PEDIDOS);
@@ -116,21 +149,42 @@ public class Sistema {
         PersistenciaJson.salvarObjeto(administrador, F_ADMIN);
     }
 
-    /** Autenticação */
-
+     /**
+     * Autentica um usuário verificando as credenciais contra o administrador
+     * e, em seguida, contra todos os colaboradores cadastrados.
+     *
+     * @param login login informado
+     * @param senha senha informada
+     * @return o {@link Usuario} autenticado (Administrador ou Colaborador),
+     * ou {@code null} se as credenciais forem inválidas
+     */
     public Usuario autenticar(String login, String senha) {
         if (administrador != null && administrador.autenticar(login, senha)) return administrador;
         for (Colaborador c : colaboradores) if (c.autenticar(login, senha)) return c;
         return null;
     }
 
-    /** CRUD Clientes */
+     /**
+     * Inclui um novo cliente no sistema e persiste a lista atualizada.
+     *
+     * @param c cliente a ser incluído
+     */
 
     public void incluirCliente(Cliente c) {
         clientes.add(c);
         PersistenciaJson.salvarLista(clientes, F_CLIENTES);
     }
-
+    /**
+     * Edita os dados de um cliente existente. Apenas os campos não nulos
+     * são atualizados.
+     *
+     * @param id identificador do cliente a editar
+     * @param nome novo nome, ou {@code null} para não alterar
+     * @param telefone novo telefone, ou {@code null} para não alterar
+     * @param endereco novo endereço, ou {@code null} para não alterar
+     * @return {@code true} se o cliente foi encontrado e atualizado;
+     * {@code false} se não existir
+     */
     public boolean editarCliente(int id, String nome, String telefone, String endereco) {
         Cliente c = buscarCliente(id);
         if (c == null) return false;
@@ -140,29 +194,59 @@ public class Sistema {
         PersistenciaJson.salvarLista(clientes, F_CLIENTES);
         return true;
     }
-
+    /**
+     * Remove um cliente do sistema pelo seu identificador.
+     *
+     * @param id identificador do cliente a remover
+     * @return {@code true} se removido com sucesso; {@code false} se não encontrado
+     */
     public boolean removerCliente(int id) {
         boolean ok = clientes.removeIf(c -> c.getId() == id);
         if (ok) PersistenciaJson.salvarLista(clientes, F_CLIENTES);
         return ok;
     }
+     /**
+     * Busca um cliente pelo seu identificador.
+     *
+     * @param id identificador do cliente
+     * @return o {@link Cliente} encontrado, ou {@code null} se não existir
+     */
 
     public Cliente buscarCliente(int id) {
         return clientes.stream().filter(c -> c.getId() == id).findFirst().orElse(null);
     }
-
+    /**
+     * Busca clientes cujo nome contenha o texto informado (busca parcial).
+     *
+     * @param nome texto para pesquisar no nome dos clientes
+     * @return lista de clientes cujo nome contém o texto pesquisado
+     */
     public List<Cliente> buscarClientePorNome(String nome) {
         String n = nome.toLowerCase();
         return clientes.stream().filter(c -> c.getNome().toLowerCase().contains(n)).collect(Collectors.toList());
     }
 
-    /** CRUD Colaboradores */
+     /**
+     * Inclui um novo colaborador no sistema e persiste a lista atualizada.
+     *
+     * @param c colaborador a ser incluído
+     */
 
     public void incluirColaborador(Colaborador c) {
         colaboradores.add(c);
         PersistenciaJson.salvarLista(colaboradores, F_COLABORADORES);
     }
 
+     /**
+     * Edita os dados de um colaborador existente. Apenas os campos não nulos
+     * são atualizados.
+     *
+     * @param id identificador do colaborador a editar
+     * @param nome novo nome, ou {@code null} para não alterar
+     * @param cargo novo cargo, ou {@code null} para não alterar
+     * @param telefone novo telefone, ou {@code null} para não alterar
+     * @return {@code true} se encontrado e atualizado; {@code false} se não existir
+     */
     public boolean editarColaborador(int id, String nome, String cargo, String telefone) {
         Colaborador c = buscarColaborador(id);
         if (c == null) return false;
@@ -172,17 +256,35 @@ public class Sistema {
         PersistenciaJson.salvarLista(colaboradores, F_COLABORADORES);
         return true;
     }
-
+    /**
+     * Remove um colaborador do sistema pelo seu identificador.
+     *
+     * @param id identificador do colaborador a remover
+     * @return {@code true} se removido; {@code false} se não encontrado
+     */
     public boolean removerColaborador(int id) {
         boolean ok = colaboradores.removeIf(c -> c.getId() == id);
         if (ok) PersistenciaJson.salvarLista(colaboradores, F_COLABORADORES);
         return ok;
     }
-
+    /**
+     * Busca um colaborador pelo seu identificador.
+     *
+     * @param id identificador do colaborador
+     * @return o {@link Colaborador} encontrado, ou {@code null} se não existir
+     */
     public Colaborador buscarColaborador(int id){
         return colaboradores.stream().filter(c -> c.getId() == id).findFirst().orElse(null);
     }
-
+    /**
+     * Altera a senha de um usuário após autenticar com a senha atual.
+     * Persiste todas as entidades ao final da operação.
+     *
+     * @param login login do usuário
+     * @param senhaAtual senha atual para validação
+     * @param novaSenha nova senha desejada
+     * @return {@code true} se a senha foi alterada; {@code false} se a autenticação falhou
+     */
     public boolean alterarSenha(String login, String senhaAtual, String novaSenha) {
         Usuario u = autenticar(login, senhaAtual);
         if (u == null) { System.out.println("[Erro] Senha atual incorreta."); return false; }
