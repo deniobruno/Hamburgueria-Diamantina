@@ -1,5 +1,5 @@
 package model;
-
+import java.util.List;
 /**
  * Representa uma venda concluída na hamburgueria.
  * <p>
@@ -65,6 +65,15 @@ public class Venda {
     public int getId(){ 
         return id; 
     }
+/**
+* Reajusta {@code proximoId} a partir do maior id carregado (evita colisão pós-load).
+* @param lista lista de vendas carregada do JSON
+*/
+    public static void ajustarProximoId(List<Venda> lista){
+        int max = 0;
+        for (Venda v : lista) if (v.getId() > max) max = v.getId();
+        proximoId = max + 1;
+   }
     public void setId(int id){ 
         this.id = id; 
     }
