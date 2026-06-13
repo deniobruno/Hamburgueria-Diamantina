@@ -5,11 +5,16 @@ import model.Ingrediente;
 import com.google.gson.reflect.TypeToken;
 import model.*;
 import persistencia.PersistenciaJson;
+import factorymethod.ProdutoFactory;
+import factorymethod.HamburguerFactory;
+import factorymethod.BebidaFactory;
+import factorymethod.SobremesaFactory;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,6 +48,7 @@ public class Sistema {
     private static final String F_EXTRATOS = DIR + "extratos.json";
     private static final String F_VENDAS = DIR + "vendas.json";
     private static final String F_ADICIONAIS = DIR + "adicionais.json";
+    private static final String F_ENTREGAS = DIR + "entregas.json";
 
     private List<Cliente> clientes;
     private List<Pedido> pedidos;
@@ -113,7 +119,13 @@ public class Sistema {
         PersistenciaJson.garantirDiretorio(DIR);
         clientes = PersistenciaJson.carregarLista(F_CLIENTES,new TypeToken<List<Cliente>>(){}.getType());
         pedidos = PersistenciaJson.carregarLista(F_PEDIDOS,new TypeToken<List<Pedido>>(){}.getType());
-        produtos = PersistenciaJson.carregarLista(F_PRODUTOS,new TypeToken<List<Produto>>(){}.getType());
+        /* Reconstrói os subtipos de Produto (Hamburguer/Bebidas/Sobremesa) preservando o
+           polimorfismo: o Gson releria tudo como Produto puro, então usamos o campo "tipo"
+           gravado em cada produto para recriar a classe concreta via fábrica. */
+        List<Produto> produtosBrutos = PersistenciaJson.carregarLista(F_PRODUTOS,new TypeToken<List<Produto>>(){}.getType());
+        produtos = new ArrayList<>();
+        for (Produto p : produtosBrutos) produtos.add(reconstruirProduto(p));
+
         ingredientes = PersistenciaJson.carregarLista(F_INGREDIENTES,new TypeToken<List<Ingrediente>>(){}.getType());
         colaboradores = PersistenciaJson.carregarLista(F_COLABORADORES,new TypeToken<List<Colaborador>>(){}.getType());
         extratos = PersistenciaJson.carregarLista(F_EXTRATOS,new TypeToken<List<Extrato>>(){}.getType());
@@ -122,13 +134,63 @@ public class Sistema {
         administrador = PersistenciaJson.carregarObjeto(F_ADMIN,Administrador.class);
         motoqueiros = PersistenciaJson.carregarLista(F_MOTOQUEIROS,new TypeToken<List<Motoqueiro>>(){}.getType());
         regioes   = PersistenciaJson.carregarLista(F_REGIOES,new TypeToken<List<Regiao>>(){}.getType());
+        entregas  = PersistenciaJson.carregarLista(F_ENTREGAS,new TypeToken<List<Entrega>>(){}.getType());
         
         if (administrador == null) {
             administrador = new Administrador("Admin", "admin", "admin123", "admin@hamburgueria.com");
             PersistenciaJson.salvarObjeto(administrador, F_ADMIN);
         }
+        /* Seed mínimo para o sistema de entregas: garante o mínimo de 5 motoqueiros
+           "em ação" (Alternativa 15) e algumas regiões na primeira execução. */
+        if (motoqueiros.isEmpty()) {
+            for (int i = 1; i <= 6; i++) motoqueiros.add(new Motoqueiro("Motoqueiro " + i, "3899000000" + i, 1));
+        }
+        if (regioes.isEmpty()) {
+            regioes.add(new Regiao(1, "Centro"));
+            regioes.add(new Regiao(2, "Palha"));
+            regioes.add(new Regiao(3, "Rio Grande"));
+        }
+
+        /* Reajusta os contadores de id estáticos a partir do maior id carregado,
+           evitando colisões (o Gson não executa os construtores na desserialização). */
+        Cliente.ajustarProximoId(clientes);
+        Pedido.ajustarProximoId(pedidos);
+        Venda.ajustarProximoId(vendas);
+        Extrato.ajustarProximoId(extratos);
+        Motoqueiro.ajustarProximoId(motoqueiros);
+        Entrega.ajustarProximoId(entregas);
+        int maiorUsuario = colaboradores.stream().mapToInt(Colaborador::getId).max().orElse(0);
+        if (administrador != null) maiorUsuario = Math.max(maiorUsuario, administrador.getId());
+        Usuario.ajustarProximoId(maiorUsuario);
+
+        /* Sincroniza os contadores de instância com o que foi persistido (Alternativas 11 e 12). */
+        Produto.setTotalProdutos(produtos.size());
+        Pedido.setTotalPedidosCriados(pedidos.size());
         System.out.println("[Sistema] Carregado. Clientes: " + clientes.size()
                 + " | Pedidos: " + pedidos.size() + " | Produtos: " + produtos.size());
+    }
+      /**
++     * Reconstrói um {@link Produto} carregado do JSON na sua classe concreta correta
++     * (Hamburguer/Bebidas/Sobremesa), usando o discriminador {@code tipo} e a
++     * fábrica correspondente. Preserva o polimorfismo perdido na desserialização.
++     *
++     * @param base produto lido do JSON (sempre instanciado como Produto puro pelo Gson)
++     * @return instância do subtipo correto, ou o próprio Produto base se o tipo for desconhecido
++     */
+    private Produto reconstruirProduto(Produto base) {
+        if (base == null) return null;
+        String tipo = base.getTipo() == null ? "Produto" : base.getTipo();
+        ProdutoFactory fabrica;
+        switch (tipo) {
+            case "Hamburguer": fabrica = new HamburguerFactory(); break;
+            case "Bebidas":    fabrica = new BebidaFactory();      break;
+            case "Sobremesa":  fabrica = new SobremesaFactory();   break;
+            default:           return base; // Produto base puro
+        }
+        Produto novo = fabrica.criar(base.getIdDescricao(), base.getDescricao(), base.getValor());
+        if (base.getAdicionaisDisponiveis() != null) novo.setAdicionaisDisponiveis(base.getAdicionaisDisponiveis());
+        if (base.getIdsIngredientes() != null) novo.setIdsIngredientes(base.getIdsIngredientes());
+        return novo;
     }
     /**
      * Persiste todas as listas e o objeto administrador nos respectivos arquivos JSON,
@@ -145,7 +207,7 @@ public class Sistema {
         PersistenciaJson.salvarLista(adicionais,F_ADICIONAIS);
         PersistenciaJson.salvarLista(this.motoqueiros,F_MOTOQUEIROS);
         PersistenciaJson.salvarLista(this.regioes,F_REGIOES);
-        
+        PersistenciaJson.salvarLista(this.entregas,F_ENTREGAS);
         PersistenciaJson.salvarObjeto(administrador, F_ADMIN);
     }
 
@@ -363,7 +425,7 @@ public class Sistema {
             return null;
         }
 
-        String data = LocalDate.now().format(DateTimeFormatter.ofPattern("Dia/Mes/Ano"));
+        String data = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         String hora = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
 
         double valorTotal = 0;
@@ -413,7 +475,7 @@ public class Sistema {
 
         gerenciadorEntregas.criarEntrega(pedido.getId(), idRegiao, this.motoqueiros, this.entregas, this.regioes);
         
-        atualizarEstoqueAposPedido();
+        atualizarEstoqueAposPedido(idsProduto);
         return pedido;
     }
     /**
@@ -488,38 +550,109 @@ public class Sistema {
         if (!alerta) System.out.println("[Estoque] Todos em nivel adequado.");
     }
     /**
-     * Consome 0,1 unidade de cada ingrediente cadastrado após a realização
-     * de um pedido e verifica se algum atingiu o nível de alerta.
+     * Dá baixa no estoque consumindo os ingredientes que compõem os produtos do pedido
+     * (receita de cada produto via {@link Produto#getIdsIngredientes()}). Em seguida
+     * verifica alertas e persiste a lista de ingredientes.
+     *
+     * @param idsProduto ids dos produtos efetivamente pedidos
      */
-    private void atualizarEstoqueAposPedido() {
-        for (Ingrediente i : ingredientes) i.consumir(0.1);
+    private void atualizarEstoqueAposPedido(List<Integer> idsProduto) {
+        for (int idProd : idsProduto) {
+            Produto p = buscarProduto(idProd);
+            if (p == null) continue;
+            for (int idIng : p.getIdsIngredientes()) {
+                Ingrediente ing = ingredientes.stream().filter(i -> i.getId() == idIng).findFirst().orElse(null);
+                if (ing != null) ing.consumir(1.0); // 1 unidade do ingrediente por produto pedido
+            }
+        }
         verificarAlertas();
         PersistenciaJson.salvarLista(ingredientes, F_INGREDIENTES);
     }
+      /**
+      * Imprime todos os pedidos de um cliente específico (Alternativa 8),
+     * cruzando o id do cliente com a lista de pedidos.
+     * @param idCliente identificador do cliente
+     */
+    public void imprimirPedidosDoCliente(int idCliente) {
+        Cliente c = buscarCliente(idCliente);
+        if (c == null) { System.out.println("[Erro] Cliente nao encontrado."); return; }
+        System.out.println("Pedidos do cliente " + c.getNome() + " (ID " + idCliente + "):");
+        boolean algum = false;
+        for (Pedido p : pedidos) {
+            if (p.getIdCliente() == idCliente) { System.out.println("  " + p); algum = true; }
+        }
+        if (!algum) System.out.println("  (nenhum pedido registrado)");
+    }
+
+    /* --- Mutação controlada de motoqueiros/regiões (encapsulamento) --- */
+
+    /**
+     * Adiciona um motoqueiro através do {@link GerenciadorEntregas} e persiste.
+     * @param m motoqueiro a adicionar
+     */
+    public void adicionarMotoqueiro(Motoqueiro m) {
+        gerenciadorEntregas.adicionarMotoqueiro(m, this.motoqueiros);
+        PersistenciaJson.salvarLista(motoqueiros, F_MOTOQUEIROS);
+    }
+    /**
+     * Remove um motoqueiro respeitando o mínimo do {@link GerenciadorEntregas} e persiste.
+     * @param id id do motoqueiro
+     * @return {@code true} se removido
+     */
+    public boolean removerMotoqueiro(int id) {
+        boolean ok = gerenciadorEntregas.removerMotoqueiro(id, this.motoqueiros);
+        if (ok) PersistenciaJson.salvarLista(motoqueiros, F_MOTOQUEIROS);
+        return ok;
+    }
+    /**
+     * Cria uma região com id automático, adiciona via gerenciador e persiste.
+     * @param nome nome da região
+     * @return a região criada
+     */
+    public Regiao adicionarRegiao(String nome) {
+        int novoId = regioes.stream().mapToInt(Regiao::getId).max().orElse(0) + 1;
+        Regiao r = new Regiao(novoId, nome);
+        gerenciadorEntregas.adicionarRegiao(r, this.regioes);
+        PersistenciaJson.salvarLista(regioes, F_REGIOES);
+        return r;
+    }
+    /**
+     * Remove uma região e persiste.
+     * @param id id da região
+     * @return {@code true} se removida
+     */
+    public boolean removerRegiao(int id) {
+        boolean ok = regioes.removeIf(r -> r.getId() == id);
+        if (ok) PersistenciaJson.salvarLista(regioes, F_REGIOES);
+        return ok;
+    }
+
+    /* --- Getters: devolvem visões somente-leitura para proteger o estado interno --- */
+
 
     public List<Cliente> getClientes(){ 
-        return clientes; 
+        return Collections.unmodifiableList(clientes);
     }
     public List<Pedido> getPedidos(){ 
-        return pedidos; 
+        return Collections.unmodifiableList(pedidos); 
     }
     public List<Produto> getProdutos(){
-        return produtos; 
+        return Collections.unmodifiableList(produtos);
     }
     public List<Ingrediente> getIngredientes(){ 
-        return ingredientes; 
+       return Collections.unmodifiableList(ingredientes); 
     }
     public List<Colaborador> getColaboradores(){
-        return colaboradores;
+        return Collections.unmodifiableList(colaboradores);
     }
     public List<Extrato> getExtratos(){
-        return extratos; 
+        return Collections.unmodifiableList(extratos);
     }
     public List<Venda> getVendas(){ 
-        return vendas; 
+        return Collections.unmodifiableList(vendas); 
     }
     public List<Adicional> getAdicionais(){
-        return adicionais;
+        return Collections.unmodifiableList(adicionais);
     }
     public Administrador getAdministrador(){
         return administrador; 
@@ -530,16 +663,14 @@ public class Sistema {
     public FilaPedidos getFilaPedidos(){ 
         return filaPedidos; 
     }
-    
-    /** Getters adicionados para expor as listas centralizadas */
     public List<Motoqueiro> getMotoqueiros() {
-        return motoqueiros;
+       return Collections.unmodifiableList(motoqueiros);
     }
     public List<Regiao> getRegioes() {
-        return regioes;
+        return Collections.unmodifiableList(regioes);
     }
     public List<Entrega> getEntregas() {
-        return entregas;
+        return Collections.unmodifiableList(entregas);
     }
 
     @Override
