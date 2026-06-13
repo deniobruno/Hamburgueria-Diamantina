@@ -115,6 +115,16 @@ public class Cliente implements Comparator<Cliente>{
         this.idUltimoPedido = idPedido;
         this.dataUltimoPedido = data;
     }
+    /**
+     * Reajusta {@code proximoId} a partir do maior id carregado, evitando
+     * colisão de IDs após o carregamento via Gson (que ignora o construtor).
+     * @param lista lista de clientes carregada do JSON
+     */
+    public static void ajustarProximoId(List<Cliente> lista){
+        int max = 0;
+        for (Cliente c : lista) if (c.getId() > max) max = c.getId();
+        proximoId = max + 1;
+    }
 
     /**
      * Uso do comparator para ordenar clientes em ordem alfabética pelo nome.
