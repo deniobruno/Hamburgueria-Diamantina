@@ -1,5 +1,5 @@
 package model;
-
+import java.util.List;
 /**
  * Representa o extrato (recibo) gerado automaticamente para cada pedido.
  * <p>
@@ -118,6 +118,15 @@ public class Extrato {
 
     public int getId(){
         return id; 
+    }
+    /**
+     * Reajusta {@code proximoId} a partir do maior id carregado (evita colisão).
+     * @param lista lista de extratos carregada do JSON
+     */
+    public static void ajustarProximoId(List<Extrato> lista){
+        int max = 0;
+        for (Extrato e : lista) if (e.getId() > max) max = e.getId();
+        proximoId = max + 1;
     }
     public void setId(int id){
         this.id = id;
