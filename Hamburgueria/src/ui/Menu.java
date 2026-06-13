@@ -96,6 +96,7 @@ public class Menu {
             System.out.println("8. Motoqueiros");   /** Exclusivo admin */
             System.out.println("9. Regioes");       /** Exclusivo admin */
             System.out.println("10. Info sistema");
+            System.out.println("11. Administradores");
             System.out.println("0. Sair");
             System.out.print("Opcao: ");
             switch (sc.nextLine().trim()) {
@@ -109,6 +110,7 @@ public class Menu {
                 case "8"  -> menuMotoqueiros();
                 case "9"  -> menuRegioes();
                 case "10" -> System.out.println(sistema + "\nTotal pedidos: " + Sistema.getTotalPedidosCriados());
+                case "11" -> menuAdministradores();
                 case "0"  -> ok = false;
                 default   -> System.out.println("Opcao invalida.");
             }
@@ -211,6 +213,33 @@ public class Menu {
                 boolean ok = sistema.removerRegiao(id);
                 System.out.println(ok ? "Removida." : "Nao encontrada.");
             }
+        }
+    }
+    /**
+     * Submenu de gerenciamento de administradores:
+     * listar, incluir, editar e remover administradores.
+     */
+    private void menuAdministradores() {
+        System.out.println("\n--- Administradores --- 1.Listar 2.Incluir 3.Editar 4.Remover");
+        System.out.print("Opcao: ");
+        switch (sc.nextLine().trim()) {
+            case "1" -> sistema.getAdministradores().forEach(System.out::println);
+            case "2" -> {
+                System.out.print("Nome: ");  String nome  = sc.nextLine();
+                System.out.print("Login: "); String login = sc.nextLine();
+                System.out.print("Senha: "); String senha = sc.nextLine();
+                System.out.print("Email: "); String email = sc.nextLine();
+                sistema.incluirAdministrador(new Administrador(nome, login, senha, email));
+                System.out.println("Administrador cadastrado.");
+            }
+            case "3" -> {
+                System.out.print("ID: ");    int id = lerInt();
+                System.out.print("Nome: ");  String nome  = sc.nextLine();
+                System.out.print("Login: "); String login = sc.nextLine();
+                System.out.print("Email: "); String email = sc.nextLine();
+                System.out.println(sistema.editarAdministrador(id, nvl(nome), nvl(login), nvl(email)) ? "Atualizado." : "Nao encontrado.");
+            }
+            case "4" -> { System.out.print("ID: "); System.out.println(sistema.removerAdministrador(lerInt()) ? "Removido." : "Nao removido (inexistente ou ultimo admin)."); }
         }
     }
 
