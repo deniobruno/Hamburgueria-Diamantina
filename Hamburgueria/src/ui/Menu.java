@@ -175,17 +175,17 @@ public class Menu {
                 System.out.print("Nome: ");String nome = sc.nextLine();
                 System.out.print("Telefone: ");String tel = sc.nextLine();
                 System.out.print("ID da regiao: "); int idReg = lerInt();
-                /**Passa a lista do Sistema como parâmetro */
-                sistema.getGerenciadorEntregas().adicionarMotoqueiro(new Motoqueiro(nome, tel, idReg), sistema.getMotoqueiros());
-                sistema.salvarTudo();
+                /** Mutação encapsulada pelo Sistema */
+                sistema.adicionarMotoqueiro(new Motoqueiro(nome, tel, idReg));
+                
                 System.out.println("Motoqueiro cadastrado.");
             }
             case "3" -> {
                 System.out.print("ID: ");
-                /** Passa a lista do Sistema como parâmetro */
-                boolean ok = sistema.getGerenciadorEntregas().removerMotoqueiro(lerInt(), sistema.getMotoqueiros());
+                /** Mutação encapsulada pelo Sistema (respeita o mínimo) */
+                boolean ok = sistema.removerMotoqueiro(lerInt());
                 System.out.println(ok ? "Removido." : "Nao encontrado ou minimo de 5 atingido.");
-                if (ok) sistema.salvarTudo();
+                
             }
         }
     }
@@ -201,18 +201,14 @@ public class Menu {
             case "1" -> sistema.getRegioes().forEach(System.out::println);
             case "2" -> {
                 System.out.print("Nome da regiao: "); String nome = sc.nextLine().trim();
-                int novoId = sistema.getRegioes().stream()
-                        .mapToInt(Regiao::getId).max().orElse(0) + 1;
-                /** Passa a lista do Sistema como parâmetro */
-                sistema.getGerenciadorEntregas().adicionarRegiao(new Regiao(novoId, nome), sistema.getRegioes());
-                sistema.salvarTudo();
-                System.out.println("Regiao cadastrada com ID " + novoId + ".");
+                /** Mutação encapsulada pelo Sistema (id automático) */
+                Regiao r = sistema.adicionarRegiao(nome);
+                System.out.println("Regiao cadastrada com ID " + r.getId() + ".");      
             }
             case "3" -> {
                 System.out.print("ID: "); int id = lerInt();
-                /** Busca a lista diretamente do Sistema*/
-                boolean ok = sistema.getRegioes().removeIf(r -> r.getId() == id);
-                if (ok) sistema.salvarTudo();
+                /** Mutação encapsulada pelo Sistema */
+                boolean ok = sistema.removerRegiao(id);
                 System.out.println(ok ? "Removida." : "Nao encontrada.");
             }
         }
@@ -251,7 +247,7 @@ public class Menu {
 * Permite listar, incluir, editar, remover e buscar clientes por nome.
 */
     private void menuClientes() {
-        System.out.println("\n--- Clientes --- 1.Listar 2.Incluir 3.Editar 4.Remover 5.Buscar");
+        System.out.println("\n--- Clientes --- 1.Listar 2.Incluir 3.Editar 4.Remover 5.Buscar 6.Pedidos do cliente");
         System.out.print("Opcao: ");
         switch (sc.nextLine().trim()) {
             case "1" -> listarClientes();
@@ -271,6 +267,7 @@ public class Menu {
             }
             case "4" -> { System.out.print("ID: "); System.out.println(sistema.removerCliente(lerInt()) ? "Removido." : "Nao encontrado."); }
             case "5" -> { System.out.print("Nome: "); sistema.buscarClientePorNome(sc.nextLine()).forEach(System.out::println); }
+            case "6" -> { System.out.print("ID do cliente: "); sistema.imprimirPedidosDoCliente(lerInt()); }
         }
     }
 /**
