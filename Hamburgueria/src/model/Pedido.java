@@ -33,7 +33,24 @@ public class Pedido implements Comparator<Pedido>{
     public static int getTotalPedidosCriados(){
         return totalPedidosCriados; 
     }
-
+    /**
+     * Sincroniza o contador de pedidos com o nº de pedidos persistidos.
+     * Chamado por {@code Sistema.carregar()} (o Gson não executa o construtor na leitura).
+     * @param valor novo valor do contador
+     */
+      public static void setTotalPedidosCriados(int valor){
+        totalPedidosCriados = valor;
+    }
+    /**
+     * Reajusta {@code proximoId} a partir do maior id já existente, evitando
+     * colisão de IDs após o carregamento (o Gson ignora o construtor de reconstrução).
+     * @param lista lista de pedidos carregada do JSON
+     */
+      public static void ajustarProximoId(java.util.List<Pedido> lista){
+        int max = 0;
+        for (Pedido p : lista) if (p.getId() > max) max = p.getId();
+        proximoId = max + 1;
+   }
     private int id;
     private int idCliente;
     private List<Integer> idsProdutos;
