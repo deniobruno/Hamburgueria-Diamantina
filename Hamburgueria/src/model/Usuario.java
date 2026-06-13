@@ -54,6 +54,14 @@ public abstract class Usuario {
     public int getId(){
         return id; 
     }
+    /**
+     * Reajusta {@code proximoId} a partir do maior id de usuário existente
+     * (administrador + colaboradores), evitando colisão após o carregamento.
+     * @param maiorId maior id já em uso entre os usuários
+     */
+    public static void ajustarProximoId(int maiorId){
+        if (maiorId >= proximoId) proximoId = maiorId + 1;
+    }
     public void setId(int id){ 
         this.id = id;
     }
