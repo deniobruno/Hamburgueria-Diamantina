@@ -45,6 +45,7 @@ public class Sistema {
     private static final String F_INGREDIENTES = DIR + "ingredientes.json";
     private static final String F_COLABORADORES = DIR + "colaboradores.json";
     private static final String F_ADMIN = DIR + "administrador.json";
+    private static final String F_ADMINS = DIR + "administradores.json";
     private static final String F_EXTRATOS = DIR + "extratos.json";
     private static final String F_VENDAS = DIR + "vendas.json";
     private static final String F_ADICIONAIS = DIR + "adicionais.json";
@@ -58,7 +59,7 @@ public class Sistema {
     private List<Extrato> extratos;
     private List<Venda> vendas;
     private List<Adicional> adicionais;
-    private Administrador administrador;
+    private List<Administrador> administradores;
     private List<Motoqueiro> motoqueiros;
     private List<Regiao> regioes;
     private List<Entrega> entregas;
@@ -85,7 +86,7 @@ public class Sistema {
         motoqueiros = new ArrayList<>();
         regioes = new ArrayList<>();
         entregas = new ArrayList<>();
-        
+        administradores = new ArrayList<>();
         gerenciadorEntregas = new GerenciadorEntregas();
         filaPedidos = new FilaPedidos();
     }
@@ -131,15 +132,21 @@ public class Sistema {
         extratos = PersistenciaJson.carregarLista(F_EXTRATOS,new TypeToken<List<Extrato>>(){}.getType());
         vendas = PersistenciaJson.carregarLista(F_VENDAS,new TypeToken<List<Venda>>(){}.getType());
         adicionais = PersistenciaJson.carregarLista(F_ADICIONAIS,new TypeToken<List<Adicional>>(){}.getType());
-        administrador = PersistenciaJson.carregarObjeto(F_ADMIN,Administrador.class);
+        administradores = PersistenciaJson.carregarLista(F_ADMINS,new TypeToken<List<Administrador>>(){}.getType());
         motoqueiros = PersistenciaJson.carregarLista(F_MOTOQUEIROS,new TypeToken<List<Motoqueiro>>(){}.getType());
         regioes   = PersistenciaJson.carregarLista(F_REGIOES,new TypeToken<List<Regiao>>(){}.getType());
         entregas  = PersistenciaJson.carregarLista(F_ENTREGAS,new TypeToken<List<Entrega>>(){}.getType());
         
-        if (administrador == null) {
-            administrador = new Administrador("Admin", "admin", "admin123", "admin@hamburgueria.com");
-            PersistenciaJson.salvarObjeto(administrador, F_ADMIN);
+       // Migração do formato antigo (administrador.json = objeto único) para a lista
+        if (administradores.isEmpty()) {
+            Administrador antigo = PersistenciaJson.carregarObjeto(F_ADMIN, Administrador.class);
+            if (antigo != null) administradores.add(antigo);
         }
+        // Garante que sempre exista ao menos um administrador
+        if (administradores.isEmpty()) {
+            administradores.add(new Administrador("Admin", "admin", "admin123", "admin@hamburgueria.com"));
+         }
+        PersistenciaJson.salvarLista(administradores, F_ADMINS); 
         /* Seed mínimo para o sistema de entregas: garante o mínimo de 5 motoqueiros
            "em ação" (Alternativa 15) e algumas regiões na primeira execução. */
         if (motoqueiros.isEmpty()) {
@@ -160,7 +167,8 @@ public class Sistema {
         Motoqueiro.ajustarProximoId(motoqueiros);
         Entrega.ajustarProximoId(entregas);
         int maiorUsuario = colaboradores.stream().mapToInt(Colaborador::getId).max().orElse(0);
-        if (administrador != null) maiorUsuario = Math.max(maiorUsuario, administrador.getId());
+        int maiorAdmin = administradores.stream().mapToInt(Administrador::getId).max().orElse(0);
+        maiorUsuario = Math.max(maiorUsuario, maiorAdmin);
         Usuario.ajustarProximoId(maiorUsuario);
 
         /* Sincroniza os contadores de instância com o que foi persistido (Alternativas 11 e 12). */
@@ -208,7 +216,7 @@ public class Sistema {
         PersistenciaJson.salvarLista(this.motoqueiros,F_MOTOQUEIROS);
         PersistenciaJson.salvarLista(this.regioes,F_REGIOES);
         PersistenciaJson.salvarLista(this.entregas,F_ENTREGAS);
-        PersistenciaJson.salvarObjeto(administrador, F_ADMIN);
+        PersistenciaJson.salvarLista(administradores, F_ADMINS);
     }
 
      /**
@@ -221,7 +229,7 @@ public class Sistema {
      * ou {@code null} se as credenciais forem inválidas
      */
     public Usuario autenticar(String login, String senha) {
-        if (administrador != null && administrador.autenticar(login, senha)) return administrador;
+        for (Administrador a : administradores) if (a.autenticar(login, senha)) return a;
         for (Colaborador c : colaboradores) if (c.autenticar(login, senha)) return c;
         return null;
     }
@@ -654,8 +662,58 @@ public class Sistema {
     public List<Adicional> getAdicionais(){
         return Collections.unmodifiableList(adicionais);
     }
-    public Administrador getAdministrador(){
-        return administrador; 
+    public List<Administrador> getAdministradores(){
+        return Collections.unmodifiableList(administradores);
+    }
+
+    /* --- CRUD de Administrador (caso de uso obrigatório Q1.3) --- */
+
+    /**
+     * Inclui um novo administrador e persiste a lista.
+     * @param a administrador a incluir
+     */
+    public void incluirAdministrador(Administrador a) {
+        administradores.add(a);
+        PersistenciaJson.salvarLista(administradores, F_ADMINS);
+    }
+    /**
+     * Edita os dados de um administrador existente (campos nulos são ignorados).
+     * @param id id do administrador
+     * @param nome novo nome ou {@code null}
+     * @param login novo login ou {@code null}
+     * @param email novo e-mail ou {@code null}
+     * @return {@code true} se encontrado e atualizado
+     */
+    public boolean editarAdministrador(int id, String nome, String login, String email) {
+        Administrador a = buscarAdministrador(id);
+        if (a == null) return false;
+        if (nome != null) a.setNome(nome);
+        if (login != null) a.setLogin(login);
+        if (email != null) a.setEmail(email);
+        PersistenciaJson.salvarLista(administradores, F_ADMINS);
+        return true;
+    }
+    /**
+     * Remove um administrador, impedindo que o sistema fique sem nenhum admin.
+     * @param id id do administrador
+     * @return {@code true} se removido
+     */
+    public boolean removerAdministrador(int id) {
+        if (administradores.size() <= 1) {
+            System.out.println("[Aviso] Deve existir pelo menos um administrador.");
+            return false;
+        }
+        boolean ok = administradores.removeIf(a -> a.getId() == id);
+        if (ok) PersistenciaJson.salvarLista(administradores, F_ADMINS);
+        return ok;
+    }
+    /**
+     * Busca um administrador pelo id.
+     * @param id id do administrador
+     * @return o administrador ou {@code null}
+     */
+    public Administrador buscarAdministrador(int id) {
+        return administradores.stream().filter(a -> a.getId() == id).findFirst().orElse(null);
     }
     public GerenciadorEntregas getGerenciadorEntregas(){
         return gerenciadorEntregas; 
