@@ -46,9 +46,8 @@ public class GerenciadorEntregas {
      * {@code false} se a remoção violaria o mínimo exigido
      */
     public boolean removerMotoqueiro(int id, List<Motoqueiro> motoqueiros) {
-        long ativos = motoqueiros.stream().filter(Motoqueiro::isDisponivel).count();
-        if (ativos <= MINIMO_MOTOQUEIROS) {
-            System.out.println("[Aviso] Minimo de " + MINIMO_MOTOQUEIROS + " motoqueiros ativos.");
+        if (motoqueiros.size() <= MINIMO_MOTOQUEIROS) {
+            System.out.println("[Aviso] Minimo de " + MINIMO_MOTOQUEIROS + " motoqueiros no sistema.");
             return false;
         }
         return motoqueiros.removeIf(m -> m.getId() == id);
