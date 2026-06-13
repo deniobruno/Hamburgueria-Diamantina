@@ -1,4 +1,5 @@
 package model;
+import java.util.List;
 
 
 /**
@@ -67,6 +68,15 @@ public class Motoqueiro {
 
     public int getId(){ 
         return id; 
+    }
+    /**
+     * Reajusta {@code proximoId} a partir do maior id carregado (evita colisão pós-load).
+     * @param lista lista de motoqueiros carregada do JSON
+     */
+    public static void ajustarProximoId(List<Motoqueiro> lista){
+        int max = 0;
+        for (Motoqueiro m : lista) if (m.getId() > max) max = m.getId();
+        proximoId = max + 1;
     }
     public void setId(int id){ 
         this.id = id;
