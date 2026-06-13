@@ -19,8 +19,9 @@ public class LimparDados {
         limpar(dir + "vendas.json",        "[]");
         limpar(dir + "ingredientes.json",  "[]");
         limpar(dir + "adicionais.json",    "[]");
+        limpar(dir + "entregas.json",      "[]");
         limpar(dir + "motoqueiros.json",   "[]");
-        limpar(dir + "regioes.json",   "[]");
+        limpar(dir + "regioes.json",       "[]");
         limpar(dir + "administrador.json",
                 "{\"id\":1,\"nome\":\"Admin\",\"login\":\"admin\",\"senha\":\"admin123\",\"email\":\"admin@hamburgueria.com\"}");
 
