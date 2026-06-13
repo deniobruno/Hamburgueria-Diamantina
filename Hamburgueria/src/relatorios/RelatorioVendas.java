@@ -109,11 +109,16 @@ public class RelatorioVendas {
      */
     public static List<Pedido> pesquisarPorIntervalo(List<Pedido> pedidos,
             String dataInicio, String dataFim, String horaInicio, String horaFim) {
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        java.time.LocalDate ini = java.time.LocalDate.parse(dataInicio, fmt);
+        java.time.LocalDate fim = java.time.LocalDate.parse(dataFim, fmt);
         return pedidos.stream().filter(p -> {
-            String d = p.getData();
-            boolean ok = d.compareTo(dataInicio) >= 0 && d.compareTo(dataFim) <= 0;
+            java.time.LocalDate d;
+            try { d = java.time.LocalDate.parse(p.getData(), fmt); }
+            catch (Exception e) { return false; } // data fora do formato esperado é ignorada
+            boolean ok = !d.isBefore(ini) && !d.isAfter(fim);   // intervalo cronológico, inclusivo
             if (!ok || horaInicio == null || horaFim == null) return ok;
-            String h = p.getHorarioPedido();
+            String h = p.getHorarioPedido();                    // HH:mm
             return h.compareTo(horaInicio) >= 0 && h.compareTo(horaFim) <= 0;
         }).collect(Collectors.toList());
     }
