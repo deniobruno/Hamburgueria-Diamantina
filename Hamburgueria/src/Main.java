@@ -87,7 +87,7 @@ public class Main {
         System.out.println("Sistema encerrado. Ate logo!");
     }
    
-    /**  HARNESS DE TESTES — Alternativas 18 a 21 */
+    /** TESTES — Alternativas 18 a 21 */
     
 
     /** Orquestra todos os testes pedidos no enunciado (18 a 21). */
@@ -227,7 +227,7 @@ public class Main {
         int idRegiao      = s.getRegioes().isEmpty()       ? 1 : s.getRegioes().get(0).getId();
 
         for (int i = 1; i <= 10; i++) {
-            Cliente cliente = new Cliente("Cliente " + i, "3899-00" + String.format("%02d", i), "Rua " + i);
+            Cliente cliente = new Cliente("Cliente " + i, "389911-2200" + String.format("%02d", i), "Rua " + i);
             s.incluirCliente(cliente);
 
             List<Integer> produtos = new ArrayList<>();
