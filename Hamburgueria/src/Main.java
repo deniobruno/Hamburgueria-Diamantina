@@ -87,13 +87,12 @@ public class Main {
         System.out.println("Sistema encerrado. Ate logo!");
     }
    
-    // ===================================================================
-    //  HARNESS DE TESTES — Alternativas 18 a 21
-    // ===================================================================
+    /**  HARNESS DE TESTES — Alternativas 18 a 21 */
+    
 
     /** Orquestra todos os testes pedidos no enunciado (18 a 21). */
     private static void executarTestes(Sistema s) {
-        System.out.println("\n##################  HARNESS DE TESTES (itens 18-21)  ##################");
+        System.out.println("\n TESTES (Alternativas 18 a 21)  ");
         cenario10Clientes(s);     // item 21 (popula os dados usados pelos demais)
         demoIteratorForeach(s);   // item 18
         demoComparatorSort(s);    // item 19
@@ -102,20 +101,20 @@ public class Main {
 
     /**
      * ALTERNATIVA 18 — Iterator (while hasNext/next) e for-each.
-     * Demonstra que o for-each é açúcar sintático sobre o Iterator.
+     * Demonstra que o laço for-each é uma forma simplificada de utilizar o Iterator.
      */
     private static void demoIteratorForeach(Sistema s) {
-        System.out.println("\n===== ITEM 18: Iterator (while hasNext/next) x for-each =====");
+        System.out.println("\n Alternativa 18: Iterator (while hasNext/next) x for-each");
         List<Cliente> clientes = new ArrayList<>(s.getClientes());
 
-        System.out.println("--- (a) Percorrendo com Iterator ---");
+        System.out.println("(a) Percorrendo com Iterator");
         Iterator<Cliente> iterator = clientes.iterator();
         while (iterator.hasNext()) {
             Cliente c = iterator.next();
             System.out.println(c);
         }
 
-        System.out.println("--- (b) Percorrendo com for-each (resultado idêntico) ---");
+        System.out.println("(b) Percorrendo com for-each");
         for (Cliente c : clientes) {
             System.out.println(c);
         }
@@ -127,30 +126,32 @@ public class Main {
 
     /**
      * ALTERNATIVA 19 — Collections.sort com o Comparator implementado,
-     * executado DUAS vezes com atributos diferentes (nome e id).
+     * executado duas vezes com atributos diferentes (nome e id).
      */
     private static void demoComparatorSort(Sistema s) {
-        System.out.println("\n===== ITEM 19: Collections.sort com Comparator (2x) =====");
+        System.out.println("\nAlternativa 19: Collections.sort com Comparator (2x)");
         List<Cliente> lista = new ArrayList<>(s.getClientes());
-        if (lista.isEmpty()) { System.out.println("(sem clientes para ordenar)"); return; }
+        if (lista.isEmpty()) { System.out.println("(sem clientes para ordenar)"); 
+        return;
+        }
 
         /* Cliente implementa Comparator<Cliente>; usamos uma instância existente como
            "função de comparação". compare() ordena por NOME; compararPorId() por ID. */
         Cliente comparador = lista.get(0);
 
-        System.out.println("--- 1a ordenacao: por NOME (metodo compare) ---");
+        System.out.println("1a ordenacao: por NOME (metodo compare)");
         Collections.sort(lista, comparador);
         lista.forEach(System.out::println);
 
-        System.out.println("--- 2a ordenacao: por ID (metodo compararPorId) ---");
+        System.out.println("2a ordenacao: por ID (metodo compararPorId)");
         Collections.sort(lista, (a, b) -> comparador.compararPorId(a, b));
         lista.forEach(System.out::println);
 
-        /* Bônus: o mesmo para Pedido (por valor), mostrando o Comparator de Pedido. */
+        /* O mesmo para Pedido (por valor), mostrando o Comparator de Pedido. */
         List<Pedido> pedidos = new ArrayList<>(s.getPedidos());
         if (!pedidos.isEmpty()) {
             Pedido cmpPedido = pedidos.get(0);
-            System.out.println("--- Bonus: pedidos por VALOR (compararPorValor) ---");
+            System.out.println("Pedidos por valor (compararPorValor)");
             Collections.sort(pedidos, (a, b) -> cmpPedido.compararPorValor(a, b));
             pedidos.forEach(System.out::println);
         }
@@ -161,18 +162,20 @@ public class Main {
      * com Collections.binarySearch.
      */
     private static void demoFindBinarySearch(Sistema s) {
-        System.out.println("\n===== ITEM 20: find (iterator+comparator) x binarySearch =====");
+        System.out.println("\nAlternativa 20: find (iterator+comparator) x binarySearch");
         List<Cliente> lista = new ArrayList<>(s.getClientes());
-        if (lista.isEmpty()) { System.out.println("(sem clientes para buscar)"); return; }
+        if (lista.isEmpty()) { System.out.println("(sem clientes para buscar)"); 
+        return; 
+        }
 
         Comparator<Cliente> porId = (a, b) -> Integer.compare(a.getId(), b.getId());
         Cliente alvo = lista.get(lista.size() - 1); // escolhe um alvo existente
 
-        // find IMPLEMENTADO: percorre com Iterator usando o Comparator (O(n), sem exigir ordenação)
+        // find implementado: percorre com Iterator usando o Comparator (O(n), sem exigir ordenação)
         Cliente achadoFind = findCliente(lista, porId, alvo);
         System.out.println("find() encontrou: " + achadoFind);
 
-        // binarySearch: EXIGE a lista previamente ordenada pelo mesmo Comparator (O(log n))
+        // binarySearch: exige a lista previamente ordenada pelo mesmo Comparator (O(log n))
         Collections.sort(lista, porId);
         int idx = Collections.binarySearch(lista, alvo, porId);
         System.out.println("binarySearch() retornou indice " + idx + " -> "
@@ -200,7 +203,7 @@ public class Main {
      * variados (com baixa de estoque, entrega, cancelamento e emissão de recibo).
      */
     private static void cenario10Clientes(Sistema s) {
-        System.out.println("\n===== ITEM 21: Cenario completo com 10 clientes =====");
+        System.out.println("\nAlternativa 21: Cenario completo com 10 clientes");
 
         /* Garante cardápio (via Factory Method) e estoque para o cenário. */
         if (s.getProdutos().isEmpty()) {
@@ -232,7 +235,7 @@ public class Main {
             if (i % 2 == 0) produtos.add(2); // pares também pedem bebida
             List<Integer> adicionais = new ArrayList<>();
 
-            System.out.println("\n----- Atendimento " + i + " (" + cliente.getNome() + ") -----");
+            System.out.println("\nAtendimento " + i + " (" + cliente.getNome() + ")");
             Pedido pedido = s.realizarPedido(cliente.getId(), produtos, adicionais,
                     "20:" + String.format("%02d", i), idColaborador, idRegiao);
             if (pedido == null) continue;
@@ -254,9 +257,9 @@ public class Main {
             }
         }
 
-        System.out.println("\n----- Resumo do cenario -----");
-        System.out.println("Total de pedidos criados (metodo de classe, item 12): " + Sistema.getTotalPedidosCriados());
-        System.out.println("Total de produtos criados (item 11): " + Produto.getTotalProdutosPrivate());
+        System.out.println("\nResumo do cenario");
+        System.out.println("Total de pedidos criados (metodo de classe, alternativa 12): " + Sistema.getTotalPedidosCriados());
+        System.out.println("Total de produtos criados (alternativa 11): " + Produto.getTotalProdutosPrivate());
         EstacaoPreparo.imprimirStatus();
         s.getFilaPedidos().imprimirFila();
         s.verificarAlertas();
