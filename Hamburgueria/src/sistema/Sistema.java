@@ -476,7 +476,7 @@ public class Sistema {
         if (estacao != null) {
             estacao.alocarPedido(pedido.getId());
             pedido.setStatus(Pedido.Status.EM_PREPARO);
-            System.out.println("[Sistema] Pedido #" + pedido.getId() + " → " + estacao.getNome());
+            System.out.println("[Sistema] Pedido #" + pedido.getId() + " -> " + estacao.getNome());
         } else {
             filaPedidos.enfileirar(pedido);
         }
