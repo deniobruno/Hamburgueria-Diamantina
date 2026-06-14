@@ -118,7 +118,7 @@ public class GerenciadorEntregas {
         entregas.add(e);
         
         Regiao r = buscarRegiao(idRegiao, regioes);
-        System.out.println("[Entrega] Pedido #" + idPedido + " → " + moto.getNome()
+        System.out.println("[Entrega] Pedido #" + idPedido + " -> " + moto.getNome()
                 + " (regiao: " + (r != null ? r.getNome() : idRegiao) + ")");
         return e;
     }
