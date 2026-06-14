@@ -120,7 +120,7 @@ public class Main {
         }
 
         System.out.println("Explicacao: 'for (Cliente c : lista)' e' compilado para um laco que usa "
-                + "lista.iterator(), chamando hasNext() e next() — exatamente como em (a). "
+                + "lista.iterator(), chamando hasNext() e next(), exatamente como em (a). "
                 + "Funciona para qualquer objeto que implemente Iterable.");
     }
 
@@ -131,7 +131,8 @@ public class Main {
     private static void demoComparatorSort(Sistema s) {
         System.out.println("\nAlternativa 19: Collections.sort com Comparator (2x)");
         List<Cliente> lista = new ArrayList<>(s.getClientes());
-        if (lista.isEmpty()) { System.out.println("(sem clientes para ordenar)"); 
+        if (lista.isEmpty()){
+            System.out.println("(sem clientes para ordenar)"); 
         return;
         }
 
@@ -164,7 +165,8 @@ public class Main {
     private static void demoFindBinarySearch(Sistema s) {
         System.out.println("\nAlternativa 20: find (iterator+comparator) x binarySearch");
         List<Cliente> lista = new ArrayList<>(s.getClientes());
-        if (lista.isEmpty()) { System.out.println("(sem clientes para buscar)"); 
+        if (lista.isEmpty()){
+            System.out.println("(sem clientes para buscar)"); 
         return; 
         }
 
