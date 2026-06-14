@@ -3,8 +3,8 @@ import java.io.IOException;
 
 /**
  * Utilitário para limpar todos os dados do sistema.
- * Execute esta classe diretamente pelo NetBeans (Run File)
- * quando quiser zerar todos os JSONs.
+ * Execute esta classe diretamente Run File)
+ * para zerar todos os JSONs.
  */
 public class LimparDados {
 
