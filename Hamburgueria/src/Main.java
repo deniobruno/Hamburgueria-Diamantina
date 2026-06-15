@@ -9,7 +9,7 @@ import java.util.*;
  * Ponto de entrada do sistema.
  * <p>
  * Em modo normal abre o menu interativo. Em modo de teste
- * ({@code java Main teste}) executa o harness das Alternativas 18 a 21
+ * ({@code java Main teste}) executa as Alternativas 18 a 21
  * (Iterator x for-each, Comparator + Collections.sort, find x binarySearch
  * e o cenário completo de 10 clientes) e encerra.
  * </p>
